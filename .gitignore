@@ -1,0 +1,14 @@
+# Ignore all markdown files except README.md
+*.md
+!README.md
+
+# Standard ignores
+node_modules/
+.env
+.env.local
+.env.*.local
+.DS_Store
+dist/
+build/
+*.log
+

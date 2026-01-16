@@ -1,0 +1,25 @@
+version: '3.8'
+
+# Docker Compose automatically loads variables from .env file in the same directory
+# You can override these values by creating a .env file or setting environment variables
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: traya-postgres
+    environment:
+      POSTGRES_USER: ${DB_USER:-traya_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-traya_password}
+      POSTGRES_DB: ${DB_NAME:-traya_db}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-traya_user} -d ${DB_NAME:-traya_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
