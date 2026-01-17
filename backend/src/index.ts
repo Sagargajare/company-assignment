@@ -4,6 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { AppDataSource } from './data-source';
 import { QuizController } from './controllers/quiz.controller';
+import { CoachController } from './controllers/coach.controller';
 
 dotenv.config();
 
@@ -37,10 +38,14 @@ app.get('/health/db', async (req: Request, res: Response) => {
 // API Routes
 const apiRouter = Router();
 const quizController = new QuizController();
+const coachController = new CoachController();
 
 // Quiz routes
 apiRouter.get('/quiz/schema', quizController.getQuizSchema);
 apiRouter.post('/quiz/submit', quizController.submitQuiz);
+
+// Coach routes
+apiRouter.get('/coaches/available', coachController.getAvailableCoaches);
 
 // Mount API routes
 app.use('/api', apiRouter);
