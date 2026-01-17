@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useQuizStore } from '@/lib/store/quizStore';
-import { fetchQuizSchema, submitQuiz as apiSubmitQuiz } from '@/lib/api/quiz';
+import { useQuizStore } from '@/lib/store';
+import { fetchQuizSchema, submitQuiz as apiSubmitQuiz } from '@/lib/api';
 
 export function useQuiz() {
   const [isLoadingSchema, setIsLoadingSchema] = useState(false);

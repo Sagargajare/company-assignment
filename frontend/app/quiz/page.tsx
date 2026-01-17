@@ -1,4 +1,4 @@
-import QuizContainer from '@/components/quiz/QuizContainer';
+import { QuizContainer } from '@/components/quiz';
 
 // This is a server component that can fetch initial data
 export default function QuizPage() {

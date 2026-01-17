@@ -1,26 +1,5 @@
 import { API_ENDPOINTS } from './config';
-
-export interface CreateUserRequest {
-  email: string;
-  name: string;
-  timezone?: string;
-  language_preference?: 'en' | 'hi';
-}
-
-export interface UserResponse {
-  id: string;
-  email: string;
-  name: string;
-  timezone: string;
-  language_preference: string;
-  created_at: Date;
-}
-
-export interface CreateUserResponse {
-  success: boolean;
-  data: UserResponse;
-  message?: string;
-}
+import type { CreateUserRequest, UserResponse, CreateUserResponse } from '@/types';
 
 export async function createUser(request: CreateUserRequest): Promise<UserResponse> {
   const response = await fetch(API_ENDPOINTS.CREATE_USER, {

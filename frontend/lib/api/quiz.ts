@@ -1,35 +1,5 @@
 import { API_ENDPOINTS } from './config';
-import type { QuizQuestion } from '../store/quizStore';
-
-// Types
-export interface QuizQuestionResponse {
-  id: string;
-  question_id: string;
-  question_text: string;
-  question_type: string;
-  branching_rules: Record<string, any> | null;
-  options: Array<{ value: string; label: string }> | null;
-  order_index: number;
-  created_at: Date;
-}
-
-export interface SubmitQuizRequest {
-  user_id: string;
-  responses: Array<{
-    question_id: string;
-    answer: string | string[] | number;
-  }>;
-}
-
-export interface SubmitQuizResponse {
-  success: boolean;
-  data: {
-    risk_score: number;
-    user_id: string;
-    submitted_at: Date;
-  };
-  message?: string;
-}
+import type { QuizQuestion, QuizQuestionResponse, SubmitQuizRequest, SubmitQuizResponse } from '@/types';
 
 // API Functions
 export async function fetchQuizSchema(): Promise<QuizQuestion[]> {

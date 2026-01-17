@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useQuiz } from '@/hooks/useQuiz';
-import QuizStep from './QuizStep';
-import UserForm, { UserFormData } from './UserForm';
-import { createUser } from '@/lib/api/user';
+import { useQuiz } from '@/hooks';
+import { QuizStep, UserForm } from './index';
+import type { UserFormData } from '@/types';
+import { createUser } from '@/lib/api';
 
 interface QuizContainerProps {
   userId?: string;
@@ -104,7 +104,7 @@ export default function QuizContainer({ userId }: QuizContainerProps) {
   // Show user form if no user exists
   if (showUserForm) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8 px-4">
+      <div className="min-h-screen py-12 px-4 flex items-center">
         <UserForm onSubmit={handleUserSubmit} isLoading={isCreatingUser} error={userError} />
       </div>
     );
@@ -115,8 +115,9 @@ export default function QuizContainer({ userId }: QuizContainerProps) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading questions...</p>
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mb-6"></div>
+          <p className="text-gray-700 font-semibold text-xl">Loading questions...</p>
+          <p className="text-gray-500 text-sm mt-2">Please wait</p>
         </div>
       </div>
     );
@@ -126,8 +127,9 @@ export default function QuizContainer({ userId }: QuizContainerProps) {
   if (error && schema.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center p-6 bg-red-50 border border-red-200 rounded-lg max-w-md">
-          <h3 className="text-lg font-semibold text-red-800 mb-2">Error Loading Quiz</h3>
+        <div className="text-center p-8 bg-white border-2 border-red-200 rounded-2xl max-w-md shadow-xl">
+          <div className="text-5xl mb-4">⚠️</div>
+          <h3 className="text-2xl font-bold text-red-800 mb-3">Error Loading Quiz</h3>
           <p className="text-red-600">{error}</p>
         </div>
       </div>
@@ -138,15 +140,16 @@ export default function QuizContainer({ userId }: QuizContainerProps) {
   if (isCompleted) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center p-8 bg-green-50 border border-green-200 rounded-lg max-w-md">
-          <div className="text-6xl mb-4">✅</div>
-          <h2 className="text-2xl font-bold text-green-800 mb-2">Quiz Completed!</h2>
+        <div className="text-center p-10 bg-white border-2 border-green-200 rounded-2xl max-w-lg shadow-xl">
+          <div className="text-7xl mb-6">🎉</div>
+          <h2 className="text-3xl font-bold text-green-800 mb-4">Quiz Completed!</h2>
           {riskScore !== null && (
-            <p className="text-lg text-gray-700 mb-4">
-              Your risk score: <span className="font-semibold text-blue-600">{riskScore}</span>
-            </p>
+            <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200">
+              <p className="text-sm font-semibold text-gray-600 mb-1">Your Risk Score</p>
+              <p className="text-4xl font-bold text-blue-600">{riskScore}</p>
+            </div>
           )}
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-lg">
             You can now proceed to book a consultation with a coach.
           </p>
         </div>
@@ -158,8 +161,8 @@ export default function QuizContainer({ userId }: QuizContainerProps) {
   if (!currentQuestion) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <p className="text-gray-600">No questions available.</p>
+        <div className="text-center p-8 bg-white rounded-2xl shadow-xl">
+          <p className="text-gray-600 text-lg">No questions available.</p>
         </div>
       </div>
     );
@@ -167,7 +170,7 @@ export default function QuizContainer({ userId }: QuizContainerProps) {
 
   // Render current question
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen py-12 px-4 flex items-center">
       <QuizStep
         question={currentQuestion}
         answer={getCurrentAnswer()}
