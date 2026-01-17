@@ -139,6 +139,154 @@ npm run start    # Start production server
 npm run lint     # Run ESLint
 ```
 
+## 📦 Database Migrations
+
+This project uses TypeORM for database migrations. Migrations are version-controlled database schema changes that can be applied and reverted safely.
+
+### Running Migrations
+
+**1. Run all pending migrations:**
+```bash
+cd backend
+npm run migration:run
+```
+
+This will execute all migrations that haven't been run yet, in the correct order.
+
+**2. Check migration status:**
+```bash
+npm run migration:show
+```
+
+Shows which migrations have been executed and which are pending.
+
+**3. Revert the last migration:**
+```bash
+npm run migration:revert
+```
+
+Reverts the most recently executed migration. Use this carefully as it can cause data loss.
+
+### Initial Setup (First Time)
+
+If this is your first time setting up the project:
+
+1. **Start the database:**
+   ```bash
+   docker-compose up -d
+   ```
+
+2. **Verify database is running:**
+   ```bash
+   docker-compose ps
+   ```
+
+3. **Run all migrations:**
+   ```bash
+   cd backend
+   npm run migration:run
+   ```
+
+You should see output like:
+```
+✅ Migration CreateUsersTable has been executed successfully.
+✅ Migration CreateCoachesTable has been executed successfully.
+✅ Migration CreateQuizSchemaTable has been executed successfully.
+✅ Migration CreateSlotsTable has been executed successfully.
+✅ Migration CreateQuizResponsesTable has been executed successfully.
+✅ Migration CreateBookingsTable has been executed successfully.
+```
+
+### Creating New Migrations
+
+**Note:** For this assignment, migrations are pre-created. However, if you need to create new migrations:
+
+1. Make changes to entities in `src/entities/`
+2. Generate migration:
+   ```bash
+   npm run migration:generate -- src/migrations/YourMigrationName
+   ```
+3. Review the generated migration file
+4. Run the migration:
+   ```bash
+   npm run migration:run
+   ```
+
+### Migration Files
+
+All migrations are located in `backend/src/migrations/`:
+
+- `1700000000001-CreateUsersTable.ts` - Creates users table
+- `1700000000002-CreateCoachesTable.ts` - Creates coaches table
+- `1700000000003-CreateQuizSchemaTable.ts` - Creates quiz_schema table
+- `1700000000004-CreateSlotsTable.ts` - Creates slots table
+- `1700000000005-CreateQuizResponsesTable.ts` - Creates quiz_responses table
+- `1700000000006-CreateBookingsTable.ts` - Creates bookings table (with UNIQUE constraint on slot_id)
+
+### Migration Best Practices
+
+1. **Always run migrations before starting the server** in a new environment
+2. **Never modify existing migrations** - Create new migrations instead
+3. **Test migrations** on development data before applying to production
+4. **Backup database** before running migrations in production
+5. **Run `migration:show`** to check status before deploying
+
+### Common Migration Tasks
+
+**Reset database (⚠️ deletes all data):**
+```bash
+# Stop and remove containers and volumes
+docker-compose down -v
+
+# Start fresh
+docker-compose up -d
+
+# Run all migrations
+cd backend
+npm run migration:run
+```
+
+**Check if migrations have been run:**
+```bash
+cd backend
+npm run migration:show
+```
+
+**View migration history in database:**
+```sql
+-- Connect to PostgreSQL
+docker exec -it traya-postgres psql -U traya_user -d traya_db
+
+-- Check migrations table
+SELECT * FROM migrations ORDER BY timestamp DESC;
+```
+
+### Troubleshooting Migrations
+
+**Issue: Migration already exists error**
+- The migration has already been run. Use `migration:show` to verify.
+
+**Issue: Connection refused**
+- Ensure database is running: `docker-compose ps`
+- Check database credentials in `.env` file
+
+**Issue: Migration fails with syntax error**
+- Review the migration file for SQL syntax errors
+- Check entity definitions match the migration
+
+**Issue: Need to reset everything**
+```bash
+# Stop and remove database
+docker-compose down -v
+
+# Start fresh
+docker-compose up -d
+
+# Wait a few seconds for DB to initialize, then run migrations
+cd backend
+npm run migration:run
+```
+
 ## 🐳 Docker Commands
 
 ```bash
