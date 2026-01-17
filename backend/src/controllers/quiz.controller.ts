@@ -1,6 +1,12 @@
 import { Request, Response } from 'express';
 import { QuizService } from '../services/quiz.service';
-import { QuizSchemaResponse, ErrorResponse } from '../dto/quiz.dto';
+import {
+  QuizSchemaResponse,
+  ErrorResponse,
+  SubmitQuizResponse,
+  SubmitQuizSchema,
+  SubmitQuizRequest,
+} from '../dto/quiz.dto';
 
 export class QuizController {
   private quizService: QuizService;
@@ -42,6 +48,70 @@ export class QuizController {
         error: error instanceof Error ? error.message : 'Unknown error',
         message: 'Failed to fetch quiz schema',
       };
+
+      res.status(500).json(errorResponse);
+    }
+  };
+
+  /**
+   * POST /api/quiz/submit
+   * Submit quiz responses, calculate risk score, and save to database
+   */
+  submitQuiz = async (req: Request, res: Response): Promise<void> => {
+    try {
+      // Validate request body using Zod
+      const validationResult = SubmitQuizSchema.safeParse(req.body);
+
+      if (!validationResult.success) {
+        const errorResponse: ErrorResponse = {
+          success: false,
+          error: 'Invalid request data',
+          message: validationResult.error.issues.map((e) => `${e.path.join('.')}: ${e.message}`).join(', '),
+        };
+        res.status(400).json(errorResponse);
+        return;
+      }
+
+      const { user_id, responses }: SubmitQuizRequest = validationResult.data;
+
+      // Validate that responses array is not empty
+      if (responses.length === 0) {
+        const errorResponse: ErrorResponse = {
+          success: false,
+          error: 'Invalid request data',
+          message: 'At least one quiz response is required',
+        };
+        res.status(400).json(errorResponse);
+        return;
+      }
+
+      // Submit quiz and calculate risk score
+      const riskScore = await this.quizService.submitQuiz(user_id, responses);
+
+      const response: SubmitQuizResponse = {
+        success: true,
+        data: {
+          risk_score: riskScore,
+          user_id: user_id,
+          submitted_at: new Date(),
+        },
+      };
+
+      res.status(200).json(response);
+    } catch (error) {
+      const errorResponse: ErrorResponse = {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        message: 'Failed to submit quiz',
+      };
+
+      // Handle specific error cases
+      if (error instanceof Error) {
+        if (error.message.includes('not found')) {
+          res.status(404).json(errorResponse);
+          return;
+        }
+      }
 
       res.status(500).json(errorResponse);
     }

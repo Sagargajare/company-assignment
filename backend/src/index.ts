@@ -40,6 +40,7 @@ const quizController = new QuizController();
 
 // Quiz routes
 apiRouter.get('/quiz/schema', quizController.getQuizSchema);
+apiRouter.post('/quiz/submit', quizController.submitQuiz);
 
 // Mount API routes
 app.use('/api', apiRouter);

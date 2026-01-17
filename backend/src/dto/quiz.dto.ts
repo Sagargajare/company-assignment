@@ -34,3 +34,22 @@ export const SubmitQuizSchema = z.object({
   responses: z.array(QuizResponseSchema),
 });
 
+// Submit Quiz Response DTOs
+export interface SubmitQuizResponse {
+  success: boolean;
+  data: {
+    risk_score: number;
+    user_id: string;
+    submitted_at: Date;
+  };
+  message?: string;
+}
+
+export interface SubmitQuizRequest {
+  user_id: string;
+  responses: Array<{
+    question_id: string;
+    answer: string | string[] | number;
+  }>;
+}
+
