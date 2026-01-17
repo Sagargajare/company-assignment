@@ -1,64 +1,33 @@
-import { MigrationInterface, QueryRunner, Table, TableIndex } from 'typeorm';
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class CreateUsersTable1700000000001 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.createTable(
-      new Table({
-        name: 'users',
-        columns: [
-          {
-            name: 'id',
-            type: 'uuid',
-            isPrimary: true,
-            default: 'gen_random_uuid()',
-          },
-          {
-            name: 'email',
-            type: 'varchar',
-            length: '255',
-            isUnique: true,
-            isNullable: false,
-          },
-          {
-            name: 'name',
-            type: 'varchar',
-            length: '255',
-            isNullable: false,
-          },
-          {
-            name: 'timezone',
-            type: 'varchar',
-            length: '50',
-            default: "'UTC'",
-          },
-          {
-            name: 'language_preference',
-            type: 'varchar',
-            length: '10',
-            default: "'en'",
-          },
-          {
-            name: 'created_at',
-            type: 'timestamptz',
-            default: 'CURRENT_TIMESTAMP',
-          },
-        ],
-      }),
-      true
-    );
+    // Ensure UUID extension is available
+    await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
+    
+    // Drop table if exists (for clean migration)
+    await queryRunner.query(`DROP TABLE IF EXISTS "users" CASCADE`);
+    
+    // Create users table with explicit UUID type
+    await queryRunner.query(`
+      CREATE TABLE "users" (
+        "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+        "email" varchar(255) NOT NULL,
+        "name" varchar(255) NOT NULL,
+        "timezone" varchar(50) NOT NULL DEFAULT 'UTC',
+        "language_preference" varchar(10) NOT NULL DEFAULT 'en',
+        "created_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "PK_users_id" PRIMARY KEY ("id")
+      )
+    `);
 
-    await queryRunner.createIndex(
-      'users',
-      new TableIndex({
-        name: 'idx_users_email',
-        columnNames: ['email'],
-        isUnique: true,
-      })
-    );
+    // Create unique index on email
+    await queryRunner.query(`
+      CREATE UNIQUE INDEX "idx_users_email" ON "users" ("email")
+    `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('users');
+    await queryRunner.query(`DROP TABLE IF EXISTS "users"`);
   }
 }
-

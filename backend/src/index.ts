@@ -1,8 +1,9 @@
 import 'reflect-metadata';
-import express, { Express, Request, Response } from 'express';
+import express, { Express, Request, Response, Router } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { AppDataSource } from './data-source';
+import { QuizController } from './controllers/quiz.controller';
 
 dotenv.config();
 
@@ -32,6 +33,16 @@ app.get('/health/db', async (req: Request, res: Response) => {
     res.status(503).json({ status: 'error', message: 'Database connection failed', error: error instanceof Error ? error.message : 'Unknown error' });
   }
 });
+
+// API Routes
+const apiRouter = Router();
+const quizController = new QuizController();
+
+// Quiz routes
+apiRouter.get('/quiz/schema', quizController.getQuizSchema);
+
+// Mount API routes
+app.use('/api', apiRouter);
 
 // Initialize database connection
 AppDataSource.initialize()
