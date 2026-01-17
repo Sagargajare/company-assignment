@@ -109,5 +109,130 @@ export class QuizService {
       await queryRunner.release();
     }
   }
+
+  /**
+   * Get quiz progress for a user
+   * Returns the last completed question and next question to resume from
+   * @param userId User ID
+   * @returns Progress information including last completed step and next step
+   */
+  async getQuizProgress(userId: string): Promise<{
+    user_id: string;
+    total_questions: number;
+    completed_questions: number;
+    last_completed_question: {
+      question_id: string;
+      question_text: string;
+      order_index: number;
+      answer: string | string[] | number;
+      completed_at: Date;
+    } | null;
+    next_question: {
+      question_id: string;
+      question_text: string;
+      order_index: number;
+      question_type: string;
+    } | null;
+    is_completed: boolean;
+  }> {
+    try {
+      // Verify user exists
+      const user = await this.userRepository.findOne({ where: { id: userId } });
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      // Get all quiz questions ordered by order_index
+      const allQuestions = await this.quizSchemaRepository.find({
+        order: {
+          order_index: 'ASC',
+        },
+      });
+
+      if (allQuestions.length === 0) {
+        // No questions in schema yet
+        return {
+          user_id: userId,
+          total_questions: 0,
+          completed_questions: 0,
+          last_completed_question: null,
+          next_question: null,
+          is_completed: false,
+        };
+      }
+
+      // Get all quiz responses for this user
+      const userResponses = await this.quizResponseRepository.find({
+        where: { user_id: userId },
+      });
+
+      // Create a map of question_id -> response for quick lookup
+      const responseMap = new Map<string, QuizResponse>();
+      userResponses.forEach((response) => {
+        responseMap.set(response.question_id, response);
+      });
+
+      // Find the last completed question based on order_index
+      let lastCompletedQuestion: {
+        question_id: string;
+        question_text: string;
+        order_index: number;
+        answer: string | string[] | number;
+        completed_at: Date;
+      } | null = null;
+
+      let completedCount = 0;
+
+      // Go through questions in order and find the last one with a response
+      for (const question of allQuestions) {
+        const response = responseMap.get(question.question_id);
+        if (response) {
+          completedCount++;
+          lastCompletedQuestion = {
+            question_id: question.question_id,
+            question_text: question.question_text,
+            order_index: question.order_index,
+            answer: response.answer,
+            completed_at: response.created_at,
+          };
+        }
+      }
+
+      // Find the next question to complete (first question without a response)
+      let nextQuestion: {
+        question_id: string;
+        question_text: string;
+        order_index: number;
+        question_type: string;
+      } | null = null;
+
+      for (const question of allQuestions) {
+        if (!responseMap.has(question.question_id)) {
+          nextQuestion = {
+            question_id: question.question_id,
+            question_text: question.question_text,
+            order_index: question.order_index,
+            question_type: question.question_type,
+          };
+          break; // Found the next question
+        }
+      }
+
+      const isCompleted = completedCount === allQuestions.length && completedCount > 0;
+
+      return {
+        user_id: userId,
+        total_questions: allQuestions.length,
+        completed_questions: completedCount,
+        last_completed_question: lastCompletedQuestion,
+        next_question: nextQuestion,
+        is_completed: isCompleted,
+      };
+    } catch (error) {
+      throw new Error(
+        `Failed to get quiz progress: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
 }
 
