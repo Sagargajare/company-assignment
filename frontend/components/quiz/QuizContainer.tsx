@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useQuiz } from '@/hooks/useQuiz';
 import QuizStep from './QuizStep';
+import { getOrCreateQuizUser } from '@/lib/utils/user';
 
 interface QuizContainerProps {
   userId?: string;
@@ -11,13 +12,13 @@ interface QuizContainerProps {
 export default function QuizContainer({ userId }: QuizContainerProps) {
   const {
     schema,
+    currentStep,
     currentQuestion,
     isLoading,
     error,
     isCompleted,
     riskScore,
     loadSchema,
-    loadProgress,
     setUserId,
     setAnswer,
     goToNextStep,
@@ -32,20 +33,22 @@ export default function QuizContainer({ userId }: QuizContainerProps) {
   useEffect(() => {
     const initQuiz = async () => {
       try {
-        // Load schema first
-        await loadSchema();
+        // Get or create user if not provided
+        const quizUser = userId ? { id: userId } : getOrCreateQuizUser();
+        
+        // Set userId in store
+        setUserId(quizUser.id);
 
-        // If userId provided, load progress
-        if (userId) {
-          setUserId(userId);
-          await loadProgress(userId);
-        }
+        // Load schema first
+        // Progress is automatically restored from localStorage via Zustand persist middleware
+        await loadSchema();
       } catch (err) {
         console.error('Failed to initialize quiz:', err);
       }
     };
 
     initQuiz();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   const handleAnswer = (answer: string | string[] | number) => {
@@ -132,6 +135,8 @@ export default function QuizContainer({ userId }: QuizContainerProps) {
         onPrevious={goToPreviousStep}
         canGoNext={canGoNext}
         canGoPrevious={canGoPrevious}
+        currentStep={currentStep}
+        totalQuestions={schema.length}
       />
     </div>
   );

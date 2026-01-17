@@ -8,6 +8,7 @@ export interface QuizQuestionResponse {
   question_text: string;
   question_type: string;
   branching_rules: Record<string, any> | null;
+  options: Array<{ value: string; label: string }> | null;
   order_index: number;
   created_at: Date;
 }
@@ -26,30 +27,6 @@ export interface SubmitQuizResponse {
     risk_score: number;
     user_id: string;
     submitted_at: Date;
-  };
-  message?: string;
-}
-
-export interface QuizProgressResponse {
-  success: boolean;
-  data: {
-    user_id: string;
-    total_questions: number;
-    completed_questions: number;
-    last_completed_question: {
-      question_id: string;
-      question_text: string;
-      order_index: number;
-      answer: string | string[] | number;
-      completed_at: Date;
-    } | null;
-    next_question: {
-      question_id: string;
-      question_text: string;
-      order_index: number;
-      question_type: string;
-    } | null;
-    is_completed: boolean;
   };
   message?: string;
 }
@@ -79,6 +56,7 @@ export async function fetchQuizSchema(): Promise<QuizQuestion[]> {
     question_text: q.question_text,
     question_type: q.question_type,
     branching_rules: q.branching_rules || undefined,
+    options: q.options || undefined,
     order_index: q.order_index,
   }));
 }
@@ -100,18 +78,4 @@ export async function submitQuiz(request: SubmitQuizRequest): Promise<SubmitQuiz
   return response.json();
 }
 
-export async function fetchQuizProgress(userId: string): Promise<QuizProgressResponse> {
-  const response = await fetch(API_ENDPOINTS.QUIZ_PROGRESS(userId), {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch quiz progress: ${response.statusText}`);
-  }
-
-  return response.json();
-}
 

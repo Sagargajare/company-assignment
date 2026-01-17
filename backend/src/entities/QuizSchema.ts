@@ -22,10 +22,13 @@ export class QuizSchema {
   question_text!: string;
 
   @Column({ type: 'varchar', length: 50 })
-  question_type!: string; // 'radio', 'checkbox', 'text', 'number'
+  question_type!: string; // 'radio', 'checkbox', 'select', 'text', 'number'
 
   @Column({ type: 'jsonb', nullable: true })
   branching_rules?: Record<string, any>; // {"if": "PCOS", "then": ["q5", "q6"], "else": ["q7"]}
+
+  @Column({ type: 'jsonb', nullable: true })
+  options?: Array<{ value: string; label: string }>; // Options for radio/checkbox questions
 
   @Column({ type: 'int' })
   order_index!: number;

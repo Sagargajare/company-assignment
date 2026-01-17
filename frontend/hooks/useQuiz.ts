@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useQuizStore } from '@/lib/store/quizStore';
-import { fetchQuizSchema, submitQuiz as apiSubmitQuiz, fetchQuizProgress } from '@/lib/api/quiz';
+import { fetchQuizSchema, submitQuiz as apiSubmitQuiz } from '@/lib/api/quiz';
 
 export function useQuiz() {
   const [isLoading, setIsLoading] = useState(false);
@@ -18,7 +18,6 @@ export function useQuiz() {
     riskScore,
     setSchema,
     setUserId,
-    setCurrentStep,
     setAnswer,
     goToNextStep,
     goToPreviousStep,
@@ -44,40 +43,8 @@ export function useQuiz() {
     }
   };
 
-  // Load user progress
-  const loadProgress = async (userId: string) => {
-    if (!userId) return;
-
-    setIsLoading(true);
-    setError(null);
-    try {
-      const progress = await fetchQuizProgress(userId);
-      
-      // Restore progress to store
-      setUserId(userId);
-      
-      if (progress.data.last_completed_question) {
-        // Find the index of the next question
-        const nextQuestionIndex = schema.findIndex(
-          (q) => q.question_id === progress.data.next_question?.question_id
-        );
-        
-        if (nextQuestionIndex >= 0) {
-          setCurrentStep(nextQuestionIndex);
-        }
-      }
-
-      if (progress.data.is_completed) {
-        markAsCompleted();
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to load progress';
-      setError(message);
-      console.error('Failed to load quiz progress:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Note: Progress is maintained in Zustand store with localStorage persistence
+  // No need to fetch from backend - progress is automatically restored from localStorage
 
   // Submit quiz
   const submit = async () => {
@@ -142,7 +109,6 @@ export function useQuiz() {
 
     // Actions
     loadSchema,
-    loadProgress,
     setUserId,
     setAnswer,
     goToNextStep,

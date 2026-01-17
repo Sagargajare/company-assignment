@@ -9,6 +9,7 @@ export interface QuizQuestion {
   question_text: string;
   question_type: string;
   branching_rules?: Record<string, unknown> | null;
+  options?: Array<{ value: string; label: string }> | null;
   order_index: number;
 }
 

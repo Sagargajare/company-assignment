@@ -7,7 +7,6 @@ export const API_ENDPOINTS = {
   // Quiz endpoints
   QUIZ_SCHEMA: `${API_BASE_URL}/api/quiz/schema`,
   QUIZ_SUBMIT: `${API_BASE_URL}/api/quiz/submit`,
-  QUIZ_PROGRESS: (userId: string) => `${API_BASE_URL}/api/quiz/progress/${userId}`,
 
   // Coach endpoints
   COACHES_AVAILABLE: `${API_BASE_URL}/api/coaches/available`,

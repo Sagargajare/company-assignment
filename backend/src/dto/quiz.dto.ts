@@ -7,6 +7,7 @@ export interface QuizQuestionResponse {
   question_text: string;
   question_type: string;
   branching_rules: Record<string, any> | null;
+  options: Array<{ value: string; label: string }> | null;
   order_index: number;
   created_at: Date;
 }
@@ -53,28 +54,4 @@ export interface SubmitQuizRequest {
   }>;
 }
 
-// Quiz Progress DTOs
-export interface QuizProgressResponse {
-  success: boolean;
-  data: {
-    user_id: string;
-    total_questions: number;
-    completed_questions: number;
-    last_completed_question: {
-      question_id: string;
-      question_text: string;
-      order_index: number;
-      answer: string | string[] | number;
-      completed_at: Date;
-    } | null;
-    next_question: {
-      question_id: string;
-      question_text: string;
-      order_index: number;
-      question_type: string;
-    } | null;
-    is_completed: boolean;
-  };
-  message?: string;
-}
 

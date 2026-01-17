@@ -47,7 +47,6 @@ const bookingController = new BookingController();
 // Quiz routes
 apiRouter.get('/quiz/schema', quizController.getQuizSchema);
 apiRouter.post('/quiz/submit', quizController.submitQuiz);
-apiRouter.get('/quiz/progress/:userId', quizController.getQuizProgress);
 
 // Coach routes
 apiRouter.get('/coaches/available', coachController.getAvailableCoaches);
