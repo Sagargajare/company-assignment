@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useQuiz } from '@/hooks';
 import { QuizStep, UserForm } from './index';
 import type { UserFormData } from '@/types';
@@ -11,6 +12,7 @@ interface QuizContainerProps {
 }
 
 export default function QuizContainer({ userId }: QuizContainerProps) {
+  const router = useRouter();
   const {
     schema,
     currentStep,
@@ -149,9 +151,20 @@ export default function QuizContainer({ userId }: QuizContainerProps) {
               <p className="text-4xl font-bold text-blue-600">{riskScore}</p>
             </div>
           )}
-          <p className="text-gray-600 text-lg">
+          <p className="text-gray-600 text-lg mb-6">
             You can now proceed to book a consultation with a coach.
           </p>
+          <button
+            onClick={() => {
+              // Get user timezone from browser
+              const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+              // Navigate to booking page with timezone parameter
+              router.push(`/booking?timezone=${encodeURIComponent(timezone)}`);
+            }}
+            className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+          >
+            Book Consultation
+          </button>
         </div>
       </div>
     );

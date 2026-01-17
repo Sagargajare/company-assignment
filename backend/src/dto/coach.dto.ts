@@ -24,7 +24,12 @@ export interface AvailableCoachesResponse {
 import { z } from 'zod';
 
 export const GetAvailableCoachesQuerySchema = z.object({
-  risk_score: z.string().regex(/^\d+$/).transform(Number).pipe(z.number().min(0).max(100)),
+  risk_score: z
+    .string()
+    .optional()
+    .default('0')
+    .transform((val) => parseInt(val, 10))
+    .pipe(z.number().min(0).max(100)),
   language: z.string().optional(),
 });
 

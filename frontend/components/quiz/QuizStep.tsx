@@ -258,7 +258,7 @@ export default function QuizStep({
         <div className="absolute inset-0 bg-white bg-opacity-95 backdrop-blur-sm flex items-center justify-center z-20 rounded-2xl">
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-14 w-14 border-4 border-blue-500 border-t-transparent mb-4"></div>
-            <p className="text-blue-600 font-semibold text-lg">Submitting your answers...</p>
+            <p className="text-blue-600 font-semibold text-lg">Analyzing the answers to suggest the best hair couch</p>
             <p className="text-gray-500 text-sm mt-2">Please wait</p>
           </div>
         </div>

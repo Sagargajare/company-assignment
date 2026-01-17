@@ -1,0 +1,174 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useBooking } from '@/hooks';
+import { useQuizStore } from '@/lib/store';
+import { BookingCalendar, BookingConfirmation } from './index';
+
+interface BookingContainerProps {
+  userId: string;
+  riskScore: number;
+  userTimezone?: string;
+  language?: string;
+}
+
+export default function BookingContainer({
+  userId,
+  riskScore,
+  userTimezone,
+  language,
+}: BookingContainerProps) {
+  const {
+    availableSlots,
+    slotsGroupedByDate,
+    selectedSlot,
+    currentBooking,
+    isLoadingCoaches,
+    isLoadingSlots,
+    isBooking,
+    coachesError,
+    slotsError,
+    bookingError,
+    initializeBooking,
+    setSelectedSlot,
+    bookSelectedSlot,
+  } = useBooking();
+
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [initError, setInitError] = useState<string | null>(null);
+
+  // Initialize booking flow on mount
+  useEffect(() => {
+    const init = async () => {
+      try {
+        setInitError(null);
+        await initializeBooking(riskScore, language, userTimezone);
+        setIsInitialized(true);
+      } catch (err) {
+        setInitError(err instanceof Error ? err.message : 'Failed to initialize booking');
+      }
+    };
+
+    if (!isInitialized && !isLoadingCoaches && !isLoadingSlots) {
+      init();
+    }
+  }, [riskScore, language, userTimezone, initializeBooking, isInitialized, isLoadingCoaches, isLoadingSlots]);
+
+  // Show booking confirmation if booking is successful
+  if (currentBooking) {
+    return <BookingConfirmation booking={currentBooking} />;
+  }
+
+  // Show initialization error
+  if (initError || coachesError) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center p-8 bg-white border-2 border-red-200 rounded-2xl max-w-md shadow-xl">
+          <div className="text-5xl mb-4">⚠️</div>
+          <h3 className="text-2xl font-bold text-red-800 mb-3">Error Loading Booking</h3>
+          <p className="text-red-600 mb-4">{initError || coachesError}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading state
+  if (!isInitialized || isLoadingCoaches || isLoadingSlots) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mb-6"></div>
+          <p className="text-gray-700 font-semibold text-xl">Loading available slots...</p>
+          <p className="text-gray-500 text-sm mt-2">Please wait</p>
+        </div>
+      </div>
+    );
+  }
+
+  const handleBookSlot = async () => {
+    if (!selectedSlot) {
+      return;
+    }
+
+    try {
+      await bookSelectedSlot(userId, riskScore);
+    } catch (err) {
+      console.error('Failed to book slot:', err);
+      // Error is already set in the store
+    }
+  };
+
+  return (
+    <div className="min-h-screen py-12 px-4">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Book Your Consultation</h1>
+          <p className="text-gray-600 text-lg">
+            Select an available time slot for your consultation
+          </p>
+        </div>
+
+        {/* Error Message */}
+        {(slotsError || bookingError) && (
+          <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-xl">
+            <p className="text-red-800 font-medium">{slotsError || bookingError}</p>
+          </div>
+        )}
+
+        {/* Calendar */}
+        <BookingCalendar
+          slots={availableSlots}
+          slotsGroupedByDate={slotsGroupedByDate}
+          selectedSlot={selectedSlot}
+          onSelectSlot={setSelectedSlot}
+          isLoading={isLoadingSlots}
+          error={slotsError}
+        />
+
+        {/* Booking Button */}
+        {selectedSlot && (
+          <div className="mt-8 mb-6 sticky bottom-0 bg-white border-t-2 border-gray-200 p-6 rounded-lg">
+            <div className="max-w-7xl mx-auto flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Selected Slot</p>
+                <p className="text-lg font-semibold text-gray-900">
+                  {new Date(selectedSlot.start_time_user_tz || selectedSlot.start_time).toLocaleString('en-US', {
+                    weekday: 'long',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true,
+                  })}
+                </p>
+                <p className="text-sm text-gray-500">Coach: {selectedSlot.coach_name}</p>
+              </div>
+              <button
+                onClick={handleBookSlot}
+                disabled={isBooking}
+                className={`px-8 py-4 rounded-xl font-semibold transition-all duration-200 flex items-center gap-2 shadow-lg ${
+                  isBooking
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105'
+                }`}
+              >
+                {isBooking && (
+                  <div className="inline-block animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                )}
+                <span className="text-lg">{isBooking ? 'Booking...' : 'Confirm Booking'}</span>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+

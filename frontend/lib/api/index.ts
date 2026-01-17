@@ -4,3 +4,6 @@ export * from './quiz';
 export * from './user';
 export * from './booking';
 
+// Export types
+export type { BookSlotRequest } from './booking';
+
