@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuiz } from '@/hooks/useQuiz';
 import QuizStep from './QuizStep';
-import { getOrCreateQuizUser } from '@/lib/utils/user';
+import UserForm, { UserFormData } from './UserForm';
+import { createUser } from '@/lib/api/user';
 
 interface QuizContainerProps {
   userId?: string;
@@ -18,6 +19,7 @@ export default function QuizContainer({ userId }: QuizContainerProps) {
     error,
     isCompleted,
     riskScore,
+    userId: storeUserId,
     loadSchema,
     setUserId,
     setAnswer,
@@ -27,29 +29,50 @@ export default function QuizContainer({ userId }: QuizContainerProps) {
     canGoPrevious,
     submit,
     getCurrentAnswer,
+    resetQuiz,
   } = useQuiz();
 
-  // Initialize quiz on mount
+  const [showUserForm, setShowUserForm] = useState(!userId && !storeUserId);
+  const [isCreatingUser, setIsCreatingUser] = useState(false);
+  const [userError, setUserError] = useState<string | null>(null);
+
+  // Initialize quiz on mount (only if user exists)
   useEffect(() => {
-    const initQuiz = async () => {
-      try {
-        // Get or create user if not provided
-        const quizUser = userId ? { id: userId } : getOrCreateQuizUser();
-        
-        // Set userId in store
-        setUserId(quizUser.id);
-
-        // Load schema first
-        // Progress is automatically restored from localStorage via Zustand persist middleware
-        await loadSchema();
-      } catch (err) {
-        console.error('Failed to initialize quiz:', err);
-      }
-    };
-
-    initQuiz();
+    if (userId || storeUserId) {
+      const initQuiz = async () => {
+        try {
+          await loadSchema();
+        } catch (err) {
+          console.error('Failed to initialize quiz:', err);
+        }
+      };
+      initQuiz();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId]);
+  }, [userId, storeUserId]);
+
+  const handleUserSubmit = async (formData: UserFormData) => {
+    setIsCreatingUser(true);
+    setUserError(null);
+    try {
+      const user = await createUser(formData);
+      
+      // Clear quiz progress from localStorage when new user is created
+      resetQuiz();
+      
+      // Set new user ID
+      setUserId(user.id);
+      setShowUserForm(false);
+      
+      // Load schema after user is created
+      await loadSchema();
+    } catch (err) {
+      setUserError(err instanceof Error ? err.message : 'Failed to create user');
+      throw err;
+    } finally {
+      setIsCreatingUser(false);
+    }
+  };
 
   const handleAnswer = (answer: string | string[] | number) => {
     if (!currentQuestion) return;
@@ -68,6 +91,15 @@ export default function QuizContainer({ userId }: QuizContainerProps) {
     }
     goToNextStep();
   };
+
+  // Show user form if no user exists
+  if (showUserForm) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8 px-4">
+        <UserForm onSubmit={handleUserSubmit} isLoading={isCreatingUser} error={userError} />
+      </div>
+    );
+  }
 
   // Loading state
   if (isLoading && schema.length === 0) {
@@ -141,4 +173,3 @@ export default function QuizContainer({ userId }: QuizContainerProps) {
     </div>
   );
 }
-

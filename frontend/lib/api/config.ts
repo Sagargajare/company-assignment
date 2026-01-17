@@ -4,6 +4,9 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export const API_ENDPOINTS = {
+  // User endpoints
+  CREATE_USER: `${API_BASE_URL}/api/users`,
+
   // Quiz endpoints
   QUIZ_SCHEMA: `${API_BASE_URL}/api/quiz/schema`,
   QUIZ_SUBMIT: `${API_BASE_URL}/api/quiz/submit`,

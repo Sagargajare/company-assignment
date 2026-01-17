@@ -3,6 +3,7 @@ import express, { Express, Request, Response, Router } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { AppDataSource } from './data-source';
+import { UserController } from './controllers/user.controller';
 import { QuizController } from './controllers/quiz.controller';
 import { CoachController } from './controllers/coach.controller';
 import { SlotController } from './controllers/slot.controller';
@@ -39,10 +40,14 @@ app.get('/health/db', async (req: Request, res: Response) => {
 
 // API Routes
 const apiRouter = Router();
+const userController = new UserController();
 const quizController = new QuizController();
 const coachController = new CoachController();
 const slotController = new SlotController();
 const bookingController = new BookingController();
+
+// User routes
+apiRouter.post('/users', userController.createUser);
 
 // Quiz routes
 apiRouter.get('/quiz/schema', quizController.getQuizSchema);
