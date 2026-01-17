@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { AppDataSource } from './data-source';
 import { QuizController } from './controllers/quiz.controller';
 import { CoachController } from './controllers/coach.controller';
+import { SlotController } from './controllers/slot.controller';
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ app.get('/health/db', async (req: Request, res: Response) => {
 const apiRouter = Router();
 const quizController = new QuizController();
 const coachController = new CoachController();
+const slotController = new SlotController();
 
 // Quiz routes
 apiRouter.get('/quiz/schema', quizController.getQuizSchema);
@@ -46,6 +48,9 @@ apiRouter.post('/quiz/submit', quizController.submitQuiz);
 
 // Coach routes
 apiRouter.get('/coaches/available', coachController.getAvailableCoaches);
+
+// Slot routes
+apiRouter.get('/slots/available', slotController.getAvailableSlots);
 
 // Mount API routes
 app.use('/api', apiRouter);
