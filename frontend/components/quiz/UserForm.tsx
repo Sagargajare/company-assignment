@@ -48,7 +48,17 @@ export default function UserForm({ onSubmit, isLoading = false, error }: UserFor
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+    <div className="w-full max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md relative">
+      {/* Loading Overlay */}
+      {isLoading && (
+        <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center rounded-lg z-10">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+            <p className="text-gray-600 font-medium">Loading Questions</p>
+          </div>
+        </div>
+      )}
+
       <div className="mb-6">
         <h2 className="text-2xl font-semibold text-gray-900 mb-2">
           Get Started
@@ -142,13 +152,16 @@ export default function UserForm({ onSubmit, isLoading = false, error }: UserFor
         <button
           type="submit"
           disabled={isLoading}
-          className={`w-full px-6 py-3 rounded-md font-medium transition-colors ${
+          className={`w-full px-6 py-3 rounded-md font-medium transition-colors flex items-center justify-center gap-2 ${
             isLoading
               ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
               : 'bg-blue-600 text-white hover:bg-blue-700'
           }`}
         >
-          {isLoading ? 'Creating Account...' : 'Start Quiz'}
+          {isLoading && (
+            <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+          )}
+          <span>{isLoading ? 'Creating Account...' : 'Start Quiz'}</span>
         </button>
       </form>
     </div>

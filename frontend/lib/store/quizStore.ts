@@ -129,7 +129,6 @@ export const useQuizStore = create<QuizState>()(
         answers: state.answers,
         currentStep: state.currentStep,
         isStarted: state.isStarted,
-        isCompleted: state.isCompleted,
         riskScore: state.riskScore,
         userId: state.userId,
       }),

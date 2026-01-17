@@ -15,7 +15,8 @@ export default function QuizContainer({ userId }: QuizContainerProps) {
     schema,
     currentStep,
     currentQuestion,
-    isLoading,
+    isLoadingSchema,
+    isSubmitting,
     error,
     isCompleted,
     riskScore,
@@ -57,10 +58,18 @@ export default function QuizContainer({ userId }: QuizContainerProps) {
     try {
       const user = await createUser(formData);
       
-      // Clear quiz progress from localStorage when new user is created
-      resetQuiz();
+      // Only clear quiz progress if this is a different user
+      // If it's the same user (same ID), preserve their progress
+      if (storeUserId && storeUserId !== user.id) {
+        // Different user - clear progress
+        resetQuiz();
+      } else if (!storeUserId) {
+        // No previous user - clear any stale progress
+        resetQuiz();
+      }
+      // If storeUserId === user.id, don't reset (same user continues)
       
-      // Set new user ID
+      // Set user ID
       setUserId(user.id);
       setShowUserForm(false);
       
@@ -101,13 +110,13 @@ export default function QuizContainer({ userId }: QuizContainerProps) {
     );
   }
 
-  // Loading state
-  if (isLoading && schema.length === 0) {
+  // Loading state for quiz schema
+  if (isLoadingSchema && schema.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-          <p className="text-gray-600">Loading quiz...</p>
+          <p className="text-gray-600 font-medium">Loading questions...</p>
         </div>
       </div>
     );
@@ -167,6 +176,7 @@ export default function QuizContainer({ userId }: QuizContainerProps) {
         onPrevious={goToPreviousStep}
         canGoNext={canGoNext}
         canGoPrevious={canGoPrevious}
+        isSubmitting={isSubmitting}
         currentStep={currentStep}
         totalQuestions={schema.length}
       />

@@ -26,7 +26,7 @@ export default function QuizStep({
   canGoPrevious,
   isSubmitting = false,
   currentStep,
-  totalQuestions,
+  totalQuestions
 }: QuizStepProps) {
   const [localAnswer, setLocalAnswer] = useState<string | string[] | number | undefined>(answer);
 
@@ -80,11 +80,10 @@ export default function QuizStep({
             {options!.map((option: { value: string; label: string }) => (
               <label
                 key={option.value}
-                className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-colors ${
-                  localAnswer === option.value
+                className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-colors ${localAnswer === option.value
                     ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 <input
                   type="radio"
@@ -109,11 +108,10 @@ export default function QuizStep({
               return (
                 <label
                   key={option.value}
-                  className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-colors ${
-                    isChecked
+                  className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-colors ${isChecked
                       ? 'border-blue-500 bg-blue-50'
                       : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                  }`}
+                    }`}
                 >
                   <input
                     type="checkbox"
@@ -248,7 +246,17 @@ export default function QuizStep({
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+    <div className="w-full max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md relative">
+      {/* Loading Overlay when submitting */}
+      {isSubmitting && (
+        <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center rounded-lg z-10">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+            <p className="text-blue-700 font-medium">Submitting your answers...</p>
+          </div>
+        </div>
+      )}
+
       {/* Progress Bar */}
       <div className="mb-6">
         <div className="flex justify-between items-center mb-2">
@@ -284,25 +292,26 @@ export default function QuizStep({
         <button
           onClick={onPrevious}
           disabled={!canGoPrevious || isSubmitting}
-          className={`px-6 py-2 rounded-md font-medium transition-colors ${
-            canGoPrevious && !isSubmitting
+          className={`px-6 py-2 rounded-md font-medium transition-colors ${canGoPrevious && !isSubmitting
               ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-          }`}
+            }`}
         >
           Previous
         </button>
 
         <button
           onClick={handleSubmit}
-          disabled={!isAnswerValid() || !canGoNext || isSubmitting}
-          className={`px-6 py-2 rounded-md font-medium transition-colors ${
-            isAnswerValid() && canGoNext && !isSubmitting
+          disabled={!isAnswerValid() || isSubmitting}
+          className={`px-6 py-2 rounded-md font-medium transition-colors flex items-center justify-center gap-2 ${isAnswerValid() && !isSubmitting
               ? 'bg-blue-600 text-white hover:bg-blue-700'
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          }`}
+            }`}
         >
-          {isSubmitting ? 'Submitting...' : canGoNext ? 'Next' : 'Submit Quiz'}
+          {isSubmitting && (
+            <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+          )}
+          <span>{isSubmitting ? 'Submitting...' : canGoNext ? 'Next' : 'Submit Quiz'}</span>
         </button>
       </div>
     </div>

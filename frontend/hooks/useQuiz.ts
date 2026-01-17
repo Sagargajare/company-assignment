@@ -5,7 +5,8 @@ import { useQuizStore } from '@/lib/store/quizStore';
 import { fetchQuizSchema, submitQuiz as apiSubmitQuiz } from '@/lib/api/quiz';
 
 export function useQuiz() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingSchema, setIsLoadingSchema] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const {
@@ -29,7 +30,7 @@ export function useQuiz() {
 
   // Load quiz schema
   const loadSchema = async () => {
-    setIsLoading(true);
+    setIsLoadingSchema(true);
     setError(null);
     try {
       const questions = await fetchQuizSchema();
@@ -39,7 +40,7 @@ export function useQuiz() {
       setError(message);
       throw err;
     } finally {
-      setIsLoading(false);
+      setIsLoadingSchema(false);
     }
   };
 
@@ -48,11 +49,12 @@ export function useQuiz() {
 
   // Submit quiz
   const submit = async () => {
+
     if (!userId) {
       throw new Error('User ID is required to submit quiz');
     }
 
-    setIsLoading(true);
+    setIsSubmitting(true);
     setError(null);
     try {
       const responses = Object.values(answers);
@@ -64,13 +66,14 @@ export function useQuiz() {
       setRiskScore(response.data.risk_score);
       markAsCompleted();
 
+
       return response.data.risk_score;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to submit quiz';
       setError(message);
       throw err;
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -97,7 +100,8 @@ export function useQuiz() {
     isStarted,
     isCompleted,
     riskScore,
-    isLoading,
+    isLoadingSchema,
+    isSubmitting,
     error,
 
     // Computed
