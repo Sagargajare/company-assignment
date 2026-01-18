@@ -25,6 +25,26 @@ traya/
 
 ## 🚀 Getting Started
 
+### Quick Start with Docker (Recommended)
+
+**For a complete local development environment with hot reload:**
+
+```bash
+# One command to start everything!
+./start-local.sh
+```
+
+✅ This starts PostgreSQL, backend, and frontend with hot reload  
+✅ Automatically loads sample data from `backend/data/`  
+✅ Access frontend at http://localhost:5173  
+✅ Access backend at http://localhost:3001  
+
+📖 **[See Complete Local Setup Guide →](LOCAL_SETUP.md)**
+
+---
+
+### Manual Setup (Alternative)
+
 ### Prerequisites
 
 - **Node.js** 18+ and npm

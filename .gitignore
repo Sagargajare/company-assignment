@@ -2,6 +2,7 @@
 *.md
 !DOCKER_DEPLOYMENT.md
 !DEPLOYMENT_QUICK_START.md
+!LOCAL_SETUP.md
 !README.md
 
 # Standard ignores
@@ -14,8 +15,3 @@ dist/
 build/
 *.log
 
-# Next.js (legacy)
-.next/
-
-# Vite
-.vite/
