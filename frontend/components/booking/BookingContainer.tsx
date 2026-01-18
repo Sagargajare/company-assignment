@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useBooking } from '@/hooks';
-import { useQuizStore } from '@/lib/store';
 import { BookingCalendar, BookingConfirmation } from './index';
 
 interface BookingContainerProps {
@@ -36,23 +35,29 @@ export default function BookingContainer({
 
   const [isInitialized, setIsInitialized] = useState(false);
   const [initError, setInitError] = useState<string | null>(null);
+  const hasInitializedRef = useRef(false);
 
-  // Initialize booking flow on mount
   useEffect(() => {
+    // Prevent double initialization
+    if (hasInitializedRef.current) {
+      return;
+    }
+
     const init = async () => {
+      hasInitializedRef.current = true;
       try {
         setInitError(null);
         await initializeBooking(riskScore, language, userTimezone);
         setIsInitialized(true);
       } catch (err) {
         setInitError(err instanceof Error ? err.message : 'Failed to initialize booking');
+        hasInitializedRef.current = false; // Allow retry on error
       }
     };
 
-    if (!isInitialized && !isLoadingCoaches && !isLoadingSlots) {
-      init();
-    }
-  }, [riskScore, language, userTimezone, initializeBooking, isInitialized, isLoadingCoaches, isLoadingSlots]);
+    init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Show booking confirmation if booking is successful
   if (currentBooking) {

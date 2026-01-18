@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { BookingContainer } from '@/components/booking';
 import { useQuizStore } from '@/lib/store';
 
-export default function BookingPage() {
+function BookingPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { userId, riskScore } = useQuizStore();
@@ -17,7 +17,7 @@ export default function BookingPage() {
 
   // Wait for store to hydrate from localStorage
   useEffect(() => {
-    setIsHydrated(true);
+    Promise.resolve().then(() => setIsHydrated(true));
   }, []);
 
   // Only redirect after hydration is complete
@@ -57,6 +57,21 @@ export default function BookingPage() {
       userTimezone={userTimezone}
       language={language}
     />
+  );
+}
+
+export default function BookingPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <BookingPageContent />
+    </Suspense>
   );
 }
 
