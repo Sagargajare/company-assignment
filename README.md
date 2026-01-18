@@ -4,8 +4,11 @@
 
 ```
 traya/
-├── frontend/          # Next.js app
-│   ├── app/
+├── frontend/          # React + Vite app
+│   ├── src/
+│   │   ├── pages/
+│   │   ├── App.tsx
+│   │   └── main.tsx
 │   ├── components/
 │   ├── hooks/
 │   └── lib/
@@ -116,7 +119,7 @@ You can create a script to run everything at once.
 
 3. **Check Frontend:**
    - Open browser: `http://localhost:3000`
-   - Should see Next.js default page
+   - Should see the Clinical Onboarding Hub home page
 
 ## 🛠️ Available Scripts
 
@@ -332,8 +335,8 @@ API_PREFIX=/api
 
 ### Frontend `.env`
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:3001/api
-NEXT_PUBLIC_APP_NAME=Clinical Onboarding Hub
+VITE_API_URL=http://localhost:3001
+VITE_DEMO_USER_ID=
 ```
 
 ## 🐛 Troubleshooting

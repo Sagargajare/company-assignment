@@ -71,7 +71,7 @@ The production setup includes:
 |---------|------|-------------|
 | **PostgreSQL** | 5432 | Database |
 | **Backend** | 3001 | Express.js API |
-| **Frontend** | 3000 | Next.js App |
+| **Frontend** | 3000 | React + Vite (Nginx) |
 | **Nginx** (optional) | 80/443 | Reverse Proxy |
 
 ## 🔧 Configuration
@@ -87,10 +87,11 @@ The backend container is configured with:
 ### Frontend Environment
 
 The frontend container is configured with:
-- `NODE_ENV=production`
-- Standalone Next.js output
-- Optimized production build
+- `VITE_API_URL` - API endpoint configuration
+- Static build served by Nginx
+- Optimized Vite production build
 - Health checks every 30s
+- No Node.js runtime required
 
 ### Database
 
@@ -268,11 +269,14 @@ docker exec traya-backend-prod env | grep DB_
 ### Frontend/Backend Connection Issues
 
 ```bash
-# Check network connectivity
-docker exec traya-frontend-prod ping backend
+# Check frontend logs
+docker-compose -f docker-compose.prod.yml logs frontend
 
-# Verify API URL
-docker exec traya-frontend-prod env | grep API_URL
+# Check if frontend is serving content
+curl -I http://localhost:3000
+
+# Verify Nginx is running
+docker exec traya-frontend-prod ps aux | grep nginx
 ```
 
 ## 🛑 Stopping Services
@@ -327,8 +331,10 @@ backend:
 
 - [Docker Documentation](https://docs.docker.com/)
 - [Docker Compose Best Practices](https://docs.docker.com/compose/production/)
-- [Next.js Docker Documentation](https://nextjs.org/docs/deployment#docker-image)
+- [Vite Production Build](https://vitejs.dev/guide/build.html)
+- [React Deployment Guide](https://react.dev/learn/start-a-new-react-project#deploying-to-production)
 - [PostgreSQL Docker Hub](https://hub.docker.com/_/postgres)
+- [Nginx Docker Hub](https://hub.docker.com/_/nginx)
 
 ## 🆘 Support
 

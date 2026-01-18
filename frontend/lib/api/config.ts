@@ -1,7 +1,9 @@
 // API Configuration
-// Use environment variable or default to localhost:3001
-// Make sure to set NEXT_PUBLIC_API_URL in your .env.local file
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+// In production, use relative path (proxied through nginx)
+// In development, use environment variable or localhost:3001
+const API_BASE_URL = import.meta.env.PROD 
+  ? '' // Empty string for production - uses same domain
+  : (import.meta.env.VITE_API_URL || 'http://localhost:3001');
 
 export const API_ENDPOINTS = {
   // User endpoints
@@ -22,4 +24,3 @@ export const API_ENDPOINTS = {
 };
 
 export default API_BASE_URL;
-

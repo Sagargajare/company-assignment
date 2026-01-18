@@ -15,10 +15,15 @@ export const AppDataSource = new DataSource({
   synchronize: false, // Never use synchronize in production - use migrations
   logging: process.env.NODE_ENV === 'development',
   entities: [User, QuizSchema, QuizResponse, Coach, Slot, Booking],
-  migrations: ['src/migrations/**/*.ts'],
+  // Handle both .ts (dev) and .js (production) migration files
+  migrations: process.env.NODE_ENV === 'production' 
+    ? ['dist/migrations/**/*.js']
+    : ['src/migrations/**/*.ts'],
   subscribers: [],
-  ssl: {
+  // Only enable SSL for cloud databases (AWS RDS, Azure, etc.)
+  // Disable for local Docker postgres which doesn't have SSL configured
+  ssl: process.env.DB_SSL === 'true' ? {
     rejectUnauthorized: false,
-  },
+  } : false,
 });
 

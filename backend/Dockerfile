@@ -39,13 +39,10 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 expressjs
 
-# Copy built application
+# Copy built application (includes compiled migrations in dist/migrations)
 COPY --from=builder --chown=expressjs:nodejs /app/dist ./dist
 COPY --from=deps --chown=expressjs:nodejs /app/node_modules ./node_modules
 COPY --chown=expressjs:nodejs package*.json ./
-
-# Copy migration files (needed for production deployment)
-COPY --from=builder --chown=expressjs:nodejs /app/src/migrations ./src/migrations
 
 # Switch to non-root user
 USER expressjs

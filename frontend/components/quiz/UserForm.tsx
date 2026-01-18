@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useEffect, startTransition } from 'react';
 import type { UserFormData } from '@/types';
 import { getBrowserTimezone, getTimezonesWithBrowser, TIMEZONES } from '@/constants';

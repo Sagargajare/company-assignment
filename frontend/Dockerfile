@@ -1,4 +1,4 @@
-# Multi-stage build for Next.js production
+# Multi-stage build for React + Vite production
 FROM node:20-alpine AS base
 
 # Install dependencies only when needed
@@ -14,7 +14,7 @@ COPY package*.json ./
 # Install dependencies
 RUN npm ci
 
-# Rebuild the source code only when needed
+# Build the application
 FROM base AS builder
 WORKDIR /app
 
@@ -23,56 +23,42 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Set build-time environment variables
-ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-# Disable Turbopack (use stable webpack instead) - prevents build hanging
-ENV NEXT_PRIVATE_SKIP_TURBO=true
-
 # Set build args with defaults
-ARG NEXT_PUBLIC_API_URL=http://backend:3001
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ARG VITE_API_URL=http://backend:3001
+ENV VITE_API_URL=$VITE_API_URL
 
 # Increase Node.js memory limit for build
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
-# Build Next.js application (disable Turbopack for stability)
-RUN NEXT_PRIVATE_SKIP_TURBO=true npm run build 2>&1 || (echo "Build failed - check logs above" && exit 1)
+# Build Vite application
+RUN npm run build
 
-# Production image, copy all the files and run next
-FROM base AS runner
-WORKDIR /app
+# Production image with nginx
+FROM nginx:alpine AS runner
 
-# Set production environment
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
+# Copy custom nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Create non-root user
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
+# Copy built application
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy necessary files
-COPY --from=builder /app/public ./public
-
-# Copy standalone build (Next.js output tracing)
-# Automatically copies only production dependencies
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-# Switch to non-root user
-USER nextjs
+# Create a simple entrypoint script to inject runtime env vars
+RUN echo '#!/bin/sh' > /docker-entrypoint.sh && \
+    echo 'set -e' >> /docker-entrypoint.sh && \
+    echo 'if [ -n "$VITE_API_URL" ]; then' >> /docker-entrypoint.sh && \
+    echo '  echo "window.ENV = { VITE_API_URL: \"$VITE_API_URL\" };" > /usr/share/nginx/html/env-config.js' >> /docker-entrypoint.sh && \
+    echo 'fi' >> /docker-entrypoint.sh && \
+    echo 'exec nginx -g "daemon off;"' >> /docker-entrypoint.sh && \
+    chmod +x /docker-entrypoint.sh
 
 # Expose port
 EXPOSE 3000
 
-# Set hostname to 0.0.0.0 to allow external connections
-ENV HOSTNAME="0.0.0.0"
-ENV PORT=3000
-
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
 
-# Start Next.js
-CMD ["node", "server.js"]
-
+# Start nginx
+ENTRYPOINT ["/docker-entrypoint.sh"]

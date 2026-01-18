@@ -67,8 +67,18 @@ app.use('/api', apiRouter);
 
 // Initialize database connection
 AppDataSource.initialize()
-  .then(() => {
+  .then(async () => {
     console.log('✅ Database connection established');
+    
+    // Run migrations automatically
+    try {
+      console.log('🔄 Running database migrations...');
+      await AppDataSource.runMigrations();
+      console.log('✅ Migrations completed successfully');
+    } catch (error) {
+      console.error('❌ Error running migrations:', error);
+      process.exit(1);
+    }
     
     // Start server
     app.listen(PORT, () => {

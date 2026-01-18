@@ -1,5 +1,3 @@
-'use client';
-
 import type { Slot } from '@/lib/store/bookingStore';
 
 interface SlotCardProps {

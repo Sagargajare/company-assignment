@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useState, useRef } from 'react';
 import { useBooking } from '@/hooks';
 import { BookingCalendar, BookingConfirmation } from './index';

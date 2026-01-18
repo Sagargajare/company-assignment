@@ -1,10 +1,9 @@
-'use client';
+import { Link, useNavigate } from 'react-router-dom';
+import { useQuizStore } from '@/lib/store';
+import { useBookingStore } from '@/lib/store/bookingStore';
 
-import Link from "next/link";
-import { useQuizStore } from "@/lib/store";
-import { useBookingStore } from "@/lib/store/bookingStore";
-
-export default function Home() {
+export default function HomePage() {
+  const navigate = useNavigate();
   const { userId, riskScore, isCompleted, resetQuiz } = useQuizStore();
   const { currentBooking, resetBooking } = useBookingStore();
   const canBook = userId && riskScore !== null;
@@ -17,6 +16,7 @@ export default function Home() {
         resetQuiz();
       }
     }
+    navigate('/quiz');
   };
   
   const handleResetAll = () => {
@@ -41,8 +41,7 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl">
-          <Link
-            href="/quiz"
+          <button
             onClick={handleStartQuiz}
             className="block p-8 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border-2 border-blue-500 hover:border-blue-600"
           >
@@ -56,11 +55,11 @@ export default function Home() {
                 {isCompleted && <><br /><span className="text-sm text-blue-600">Already completed - Click to retake</span></>}
               </p>
             </div>
-          </Link>
+          </button>
 
           {canBook ? (
             <Link
-              href="/booking"
+              to="/booking"
               className="block p-8 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border-2 border-green-500 hover:border-green-600"
             >
               <div className="text-center">
@@ -107,3 +106,4 @@ export default function Home() {
     </div>
   );
 }
+

@@ -1,5 +1,3 @@
-'use client';
-
 import { useMemo } from 'react';
 import type { Slot } from '@/lib/store/bookingStore';
 import SlotCard from './SlotCard';
