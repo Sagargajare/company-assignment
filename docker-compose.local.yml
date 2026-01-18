@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: traya-postgres-local
+    environment:
+      POSTGRES_USER: traya_user
+      POSTGRES_PASSWORD: traya_password
+      POSTGRES_DB: traya_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_local_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U traya_user -d traya_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - traya-local
+
+  # Backend API Server (Development mode with hot reload)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.local
+    container_name: traya-backend-local
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: traya_user
+      DB_PASSWORD: traya_password
+      DB_NAME: traya_db
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend/src:/app/src:ro
+      - ./backend/package.json:/app/package.json:ro
+      - ./backend/tsconfig.json:/app/tsconfig.json:ro
+      - ./backend/nodemon.json:/app/nodemon.json:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - traya-local
+    command: npm run dev
+
+  # Frontend React Application (Development mode with hot reload)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.local
+    container_name: traya-frontend-local
+    environment:
+      NODE_ENV: development
+      VITE_API_URL: http://localhost:3001
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/src:/app/src:ro
+      - ./frontend/components:/app/components:ro
+      - ./frontend/hooks:/app/hooks:ro
+      - ./frontend/lib:/app/lib:ro
+      - ./frontend/types:/app/types:ro
+      - ./frontend/constants:/app/constants:ro
+      - ./frontend/vite.config.ts:/app/vite.config.ts:ro
+      - ./frontend/index.html:/app/index.html:ro
+      - ./frontend/tailwind.config.js:/app/tailwind.config.js:ro
+      - ./frontend/postcss.config.js:/app/postcss.config.js:ro
+    depends_on:
+      - backend
+    networks:
+      - traya-local
+    command: npm run dev -- --host 0.0.0.0
+
+networks:
+  traya-local:
+    driver: bridge
+
+volumes:
+  postgres_local_data:
+    driver: local
+

@@ -8,6 +8,7 @@ import { QuizController } from './controllers/quiz.controller';
 import { CoachController } from './controllers/coach.controller';
 import { SlotController } from './controllers/slot.controller';
 import { BookingController } from './controllers/booking.controller';
+import { loadInitialData } from './utils/loadInitialData';
 
 dotenv.config();
 
@@ -78,6 +79,14 @@ AppDataSource.initialize()
     } catch (error) {
       console.error('❌ Error running migrations:', error);
       process.exit(1);
+    }
+    
+    // Load initial data if database is empty
+    try {
+      await loadInitialData();
+    } catch (error) {
+      console.error('❌ Error loading initial data:', error);
+      // Don't exit - server can still run without initial data
     }
     
     // Start server
