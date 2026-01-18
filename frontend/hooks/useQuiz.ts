@@ -1,5 +1,3 @@
-'use client';
-
 import { useState } from 'react';
 import { useQuizStore } from '@/lib/store';
 import { fetchQuizSchema, submitQuiz as apiSubmitQuiz } from '@/lib/api';

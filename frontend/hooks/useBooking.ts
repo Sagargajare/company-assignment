@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useCallback } from 'react';
 import { useBookingStore } from '@/lib/store';
 import { fetchAvailableCoaches, fetchAvailableSlots, bookSlot } from '@/lib/api';

@@ -1,6 +1,4 @@
-'use client';
-
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 import { useBookingStore } from '@/lib/store/bookingStore';
 import type { Booking } from '@/lib/store/bookingStore';
 
@@ -9,7 +7,7 @@ interface BookingConfirmationProps {
 }
 
 export default function BookingConfirmation({ booking }: BookingConfirmationProps) {
-  const router = useRouter();
+  const navigate = useNavigate();
   const { resetBooking } = useBookingStore();
   const formatDateTime = (timeString: string) => {
     const date = new Date(timeString);
@@ -104,7 +102,7 @@ export default function BookingConfirmation({ booking }: BookingConfirmationProp
           {/* Actions */}
           <div className="flex gap-4 pt-4">
             <button
-              onClick={() => router.push('/')}
+              onClick={() => navigate('/')}
               className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-300 transition-colors"
             >
               Go Home
@@ -113,7 +111,7 @@ export default function BookingConfirmation({ booking }: BookingConfirmationProp
               onClick={() => {
                 // Reset booking state and navigate to booking page
                 resetBooking();
-                router.push('/booking');
+                navigate('/booking');
               }}
               className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-colors"
             >

@@ -1,7 +1,5 @@
-'use client';
-
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 import { useQuiz } from '@/hooks';
 import { QuizStep, UserForm } from './index';
 import type { UserFormData } from '@/types';
@@ -12,7 +10,7 @@ interface QuizContainerProps {
 }
 
 export default function QuizContainer({ userId }: QuizContainerProps) {
-  const router = useRouter();
+  const navigate = useNavigate();
   const {
     schema,
     currentStep,
@@ -159,7 +157,7 @@ export default function QuizContainer({ userId }: QuizContainerProps) {
               // Get user timezone from browser
               const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
               // Navigate to booking page with timezone parameter
-              router.push(`/booking?timezone=${encodeURIComponent(timezone)}`);
+              navigate(`/booking?timezone=${encodeURIComponent(timezone)}`);
             }}
             className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
           >

@@ -40,7 +40,7 @@ docker-compose -f docker-compose.prod.yml ps
 
 ## Architecture
 
-- **Frontend:** Next.js (Port 3000)
+- **Frontend:** React + Vite + Nginx (Port 3000)
 - **Backend:** Express.js + TypeORM (Port 3001)
 - **Database:** PostgreSQL 15 (Port 5432)
 - **Optional:** Nginx Reverse Proxy (Port 80/443)
