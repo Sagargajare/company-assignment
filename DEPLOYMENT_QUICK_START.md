@@ -14,9 +14,10 @@ nano .env  # Change DB_PASSWORD to a strong password
 ```
 
 ### 3. Access Application (30 seconds)
-- **Frontend:** http://localhost:3000
-- **Backend API:** http://localhost:3001
-- **Database:** localhost:5432
+- **Application:** http://localhost (or your server IP/domain)
+  - Frontend: http://localhost/
+  - Backend API: http://localhost/api/
+- **Database:** localhost:5432 (internal only)
 
 ## Common Commands
 
@@ -40,10 +41,10 @@ docker-compose -f docker-compose.prod.yml ps
 
 ## Architecture
 
-- **Frontend:** React + Vite + Nginx (Port 3000)
-- **Backend:** Express.js + TypeORM (Port 3001)
-- **Database:** PostgreSQL 15 (Port 5432)
-- **Optional:** Nginx Reverse Proxy (Port 80/443)
+- **Nginx Reverse Proxy:** Single entry point (Port 80/443)
+- **Frontend:** React + Vite + Nginx (Internal: Port 3000)
+- **Backend:** Express.js + TypeORM (Internal: Port 3001)
+- **Database:** PostgreSQL 15 (Internal: Port 5432)
 
 ## What's Included?
 
@@ -54,7 +55,9 @@ docker-compose -f docker-compose.prod.yml ps
 ✅ Non-root users  
 ✅ Network isolation  
 ✅ Automated deployment script  
-✅ Nginx reverse proxy (optional)  
+✅ Nginx reverse proxy with rate limiting  
+✅ Single domain access (no CORS issues)  
+✅ Auto-run database migrations  
 ✅ Complete documentation  
 
 ---
