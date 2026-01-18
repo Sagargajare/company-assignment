@@ -1,5 +1,7 @@
 # Ignore all markdown files except README.md
 *.md
+!DOCKER_DEPLOYMENT.md
+!DEPLOYMENT_QUICK_START.md
 !README.md
 
 # Standard ignores
