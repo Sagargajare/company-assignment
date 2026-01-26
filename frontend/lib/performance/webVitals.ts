@@ -39,9 +39,7 @@ function logMetric(metric: WebVitalsMetric) {
 function sendToAnalytics(metric: WebVitalsMetric) {
   // In production, send to your analytics service
   // e.g., Google Analytics, DataDog, New Relic, etc.
-  if (import.meta.env.DEV) {
-    logMetric(metric);
-  }
+  logMetric(metric);
   
   // Example: Send to API endpoint
   // fetch('/api/analytics/web-vitals', {

@@ -1,10 +1,7 @@
 // API Configuration
 // In production, use relative path (proxied through nginx)
 // In development, use environment variable or localhost:3001
-const API_BASE_URL = import.meta.env.PROD 
-  ? '' // Empty string for production - uses same domain
-  : (import.meta.env.VITE_API_URL || 'http://localhost:3001');
-
+const API_BASE_URL = import.meta.env.VITE_API_URL
 export const API_ENDPOINTS = {
   // User endpoints
   CREATE_USER: `${API_BASE_URL}/api/users`,
