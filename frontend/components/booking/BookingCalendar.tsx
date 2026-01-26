@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import type { Slot } from '@/lib/store/bookingStore';
+import { useTranslation, type Language } from '@/hooks';
 import SlotCard from './SlotCard';
 
 interface BookingCalendarProps {
@@ -9,6 +10,7 @@ interface BookingCalendarProps {
   onSelectSlot: (slot: Slot) => void;
   isLoading?: boolean;
   error?: string | null;
+  language?: Language;
 }
 
 export default function BookingCalendar({
@@ -18,7 +20,9 @@ export default function BookingCalendar({
   onSelectSlot,
   isLoading = false,
   error = null,
+  language = 'en',
 }: BookingCalendarProps) {
+  const { t, formatDate, pluralize } = useTranslation(language);
   // Group slots by date if not already grouped
   const groupedSlots = useMemo(() => {
     if (slotsGroupedByDate && Object.keys(slotsGroupedByDate).length > 0) {
@@ -56,11 +60,11 @@ export default function BookingCalendar({
     const isTomorrow = date.toDateString() === tomorrow.toDateString();
 
     if (isToday) {
-      return 'Today';
+      return t.today;
     } else if (isTomorrow) {
-      return 'Tomorrow';
+      return t.tomorrow;
     } else {
-      return date.toLocaleDateString('en-US', {
+      return formatDate(date, {
         weekday: 'long',
         month: 'long',
         day: 'numeric',
@@ -73,7 +77,7 @@ export default function BookingCalendar({
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent mb-4"></div>
-          <p className="text-gray-600 font-medium">Loading available slots...</p>
+          <p className="text-gray-600 font-medium">{t.loadingSlots}</p>
         </div>
       </div>
     );
@@ -90,8 +94,8 @@ export default function BookingCalendar({
   if (slots.length === 0) {
     return (
       <div className="p-8 bg-gray-50 border-2 border-gray-200 rounded-xl text-center">
-        <p className="text-gray-600 text-lg font-medium">No available slots found</p>
-        <p className="text-gray-500 text-sm mt-2">Please try again later or contact support</p>
+        <p className="text-gray-600 text-lg font-medium">{t.noSlotsAvailable}</p>
+        <p className="text-gray-500 text-sm mt-2">{t.pleasewait}</p>
       </div>
     );
   }
@@ -107,7 +111,7 @@ export default function BookingCalendar({
               {formatDateHeader(date)}
             </h3>
             <p className="text-sm text-gray-500 mt-1">
-              {groupedSlots[date].length} slot{groupedSlots[date].length !== 1 ? 's' : ''} available
+              {groupedSlots[date].length} {pluralize(groupedSlots[date].length, t.slotsText)} {t.available}
             </p>
           </div>
 
@@ -118,6 +122,7 @@ export default function BookingCalendar({
                 slot={slot}
                 isSelected={selectedSlot?.id === slot.id}
                 onSelect={onSelectSlot}
+                language={language}
               />
             ))}
           </div>

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { QuizQuestion } from '@/types';
+import { useTranslation, type Language } from '@/hooks/useTranslation';
+import { useQuizStore } from '@/lib/store/quizStore';
 
 interface QuizStepProps {
   question: QuizQuestion;
@@ -26,6 +28,8 @@ export default function QuizStep({
   currentStep,
   totalQuestions
 }: QuizStepProps) {
+  const language = useQuizStore((state) => state.language) as Language;
+  const { t } = useTranslation(language || 'en');
   const [localAnswer, setLocalAnswer] = useState<string | string[] | number | undefined>(answer);
 
   // Sync local answer with prop answer when question changes
@@ -62,9 +66,9 @@ export default function QuizStep({
       if (!options || !Array.isArray(options) || options.length === 0) {
         return (
           <div className="p-4 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-red-800 text-sm font-medium mb-1">Error: Missing Options</p>
+            <p className="text-red-800 text-sm font-medium mb-1">{t.errorMissingOptions}</p>
             <p className="text-red-600 text-sm">
-              This question requires options but none were provided. Please contact support.
+              {t.errorMissingOptionsDesc}
             </p>
           </div>
         );
@@ -142,7 +146,7 @@ export default function QuizStep({
         return (
           <div className="space-y-2">
             <label className="block text-sm font-semibold text-gray-700 mb-3">
-              Select an option:
+              {t.selectAnOption}
             </label>
             <select
               value={typeof localAnswer === 'string' ? localAnswer : typeof localAnswer === 'number' ? localAnswer.toString() : ''}
@@ -154,7 +158,7 @@ export default function QuizStep({
               }}
               className="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-base text-gray-900 font-medium shadow-sm hover:border-blue-400 transition-colors"
             >
-              <option value="">-- Select an option --</option>
+              <option value="">{t.selectAnOptionPlaceholder}</option>
               {options!.map((option: { value: string; label: string }) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
@@ -170,7 +174,7 @@ export default function QuizStep({
           return (
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Select a value:
+                {t.selectAValue}
               </label>
               <select
                 value={typeof localAnswer === 'number' ? localAnswer.toString() : typeof localAnswer === 'string' ? localAnswer : ''}
@@ -181,7 +185,7 @@ export default function QuizStep({
                 }}
                 className="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-base text-gray-900 font-medium shadow-sm hover:border-blue-400 transition-colors"
               >
-                <option value="">-- Select a value --</option>
+                <option value="">{t.selectAValuePlaceholder}</option>
                 {options.map((option: { value: string; label: string }) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -195,14 +199,14 @@ export default function QuizStep({
         return (
           <div className="space-y-2">
             <label className="block text-sm font-semibold text-gray-700 mb-3">
-              Enter a number:
+              {t.enterANumber}
             </label>
             <input
               type="number"
               value={typeof localAnswer === 'number' ? localAnswer : ''}
               onChange={(e) => handleAnswerChange(parseInt(e.target.value, 10) || 0)}
               className="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base text-gray-900 shadow-sm hover:border-blue-400 transition-colors placeholder:text-gray-500"
-              placeholder="Enter a number"
+              placeholder={t.enterANumberPlaceholder}
             />
           </div>
         );
@@ -214,14 +218,14 @@ export default function QuizStep({
           return (
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Select an option:
+                {t.selectAnOption}
               </label>
               <select
                 value={typeof localAnswer === 'string' ? localAnswer : typeof localAnswer === 'number' ? localAnswer.toString() : ''}
                 onChange={(e) => handleAnswerChange(e.target.value)}
                 className="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-base text-gray-900 font-medium shadow-sm hover:border-blue-400 transition-colors"
               >
-                <option value="">-- Select an option --</option>
+                <option value="">{t.selectAnOptionPlaceholder}</option>
                 {options.map((option: { value: string; label: string }) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
@@ -235,14 +239,14 @@ export default function QuizStep({
         return (
           <div className="space-y-2">
             <label className="block text-sm font-semibold text-gray-700 mb-3">
-              Enter your answer:
+              {t.enterYourAnswer}
             </label>
             <textarea
               value={typeof localAnswer === 'string' ? localAnswer : ''}
               onChange={(e) => handleAnswerChange(e.target.value)}
               rows={5}
               className="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base text-gray-900 shadow-sm hover:border-blue-400 transition-colors resize-none placeholder:text-gray-500"
-              placeholder="Type your answer here..."
+              placeholder={t.enterYourAnswerPlaceholder}
             />
           </div>
         );
@@ -256,8 +260,8 @@ export default function QuizStep({
         <div className="absolute inset-0 bg-white bg-opacity-95 backdrop-blur-sm flex items-center justify-center z-20 rounded-2xl">
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-14 w-14 border-4 border-blue-500 border-t-transparent mb-4"></div>
-            <p className="text-blue-600 font-semibold text-lg">Analyzing the answers to suggest the best hair couch</p>
-            <p className="text-gray-500 text-sm mt-2">Please wait</p>
+            <p className="text-blue-600 font-semibold text-lg">{t.analyzingAnswers}</p>
+            <p className="text-gray-500 text-sm mt-2">{t.pleasewait}</p>
           </div>
         </div>
       )}
@@ -268,7 +272,7 @@ export default function QuizStep({
           <div className="flex justify-between items-center mb-4">
             <div>
               <span className="text-sm font-semibold text-blue-600 uppercase tracking-wide">
-                Question {currentStep + 1} of {totalQuestions}
+                {t.questionOf} {currentStep + 1} of {totalQuestions}
               </span>
             </div>
             <div className="px-3 py-1 bg-blue-100 rounded-full">
@@ -314,7 +318,7 @@ export default function QuizStep({
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Previous
+            {t.previous}
           </button>
 
           <button
@@ -329,11 +333,11 @@ export default function QuizStep({
             {isSubmitting ? (
               <>
                 <div className="inline-block animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-                <span>Submitting...</span>
+                <span>{t.submitting}</span>
               </>
             ) : (
               <>
-                <span>{canGoNext ? 'Next' : 'Submit Quiz'}</span>
+                <span>{canGoNext ? t.next : t.submitQuiz}</span>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>

@@ -1,6 +1,7 @@
 import { useState, useEffect, startTransition } from 'react';
 import type { UserFormData } from '@/types';
 import { getBrowserTimezone, getTimezonesWithBrowser, TIMEZONES } from '@/constants';
+import { useTranslation, type Language } from '@/hooks/useTranslation';
 
 interface UserFormProps {
   onSubmit: (data: UserFormData) => Promise<void>;
@@ -27,6 +28,9 @@ export default function UserForm({ onSubmit, isLoading = false, error }: UserFor
 
   const [localError, setLocalError] = useState<string | null>(null);
 
+  // Get translations based on selected language
+  const { t } = useTranslation((formData.language_preference as Language) || 'en');
+
   // Update timezone on client side only (after hydration)
   // This is necessary to avoid hydration mismatch - server renders with UTC,
   // then client updates to actual browser timezone after mount
@@ -51,12 +55,12 @@ export default function UserForm({ onSubmit, isLoading = false, error }: UserFor
 
     // Basic validation
     if (!formData.email || !formData.name) {
-      setLocalError('Please fill in all required fields');
+      setLocalError(t.fillAllFields);
       return;
     }
 
     if (!formData.email.includes('@')) {
-      setLocalError('Please enter a valid email address');
+      setLocalError(t.enterValidEmail);
       return;
     }
 
@@ -74,18 +78,18 @@ export default function UserForm({ onSubmit, isLoading = false, error }: UserFor
         <div className="absolute inset-0 bg-white bg-opacity-95 backdrop-blur-sm flex items-center justify-center z-10 rounded-2xl">
           <div className="text-center">
             <div className="inline-block animate-spin rounded-full h-14 w-14 border-4 border-blue-500 border-t-transparent mb-4"></div>
-            <p className="text-blue-600 font-semibold text-lg">Creating your account...</p>
-            <p className="text-gray-500 text-sm mt-2">Please wait</p>
+            <p className="text-blue-600 font-semibold text-lg">{t.creatingAccount}</p>
+            <p className="text-gray-500 text-sm mt-2">{t.pleasewait}</p>
           </div>
         </div>
       )}
 
       <div className="px-8 pt-8 pb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-100">
         <h2 className="text-3xl font-bold text-gray-900 mb-2">
-          Get Started
+          {t.getStarted}
         </h2>
         <p className="text-gray-600 text-base">
-          Please provide your information to begin the quiz
+          {t.provideInfoToBeginQuiz}
         </p>
       </div>
 
@@ -93,7 +97,7 @@ export default function UserForm({ onSubmit, isLoading = false, error }: UserFor
         {/* Name Field */}
         <div>
           <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
-            Full Name <span className="text-red-500">*</span>
+            {t.fullName} <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -102,7 +106,7 @@ export default function UserForm({ onSubmit, isLoading = false, error }: UserFor
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             required
             className="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base text-gray-900 shadow-sm hover:border-blue-400 transition-colors placeholder:text-gray-500"
-            placeholder="Enter your full name"
+            placeholder={t.enterYourFullName}
             disabled={isLoading}
           />
         </div>
@@ -110,7 +114,7 @@ export default function UserForm({ onSubmit, isLoading = false, error }: UserFor
         {/* Email Field */}
         <div>
           <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-            Email Address <span className="text-red-500">*</span>
+            {t.emailAddress} <span className="text-red-500">*</span>
           </label>
           <input
             type="email"
@@ -119,7 +123,7 @@ export default function UserForm({ onSubmit, isLoading = false, error }: UserFor
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             required
             className="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base text-gray-900 shadow-sm hover:border-blue-400 transition-colors placeholder:text-gray-500"
-            placeholder="Enter your email"
+            placeholder={t.enterYourEmail}
             disabled={isLoading}
           />
         </div>
@@ -127,7 +131,7 @@ export default function UserForm({ onSubmit, isLoading = false, error }: UserFor
         {/* Timezone Field */}
         <div>
           <label htmlFor="timezone" className="block text-sm font-semibold text-gray-700 mb-2">
-            Timezone
+            {t.timezone}
           </label>
           <select
             id="timezone"
@@ -143,14 +147,14 @@ export default function UserForm({ onSubmit, isLoading = false, error }: UserFor
             ))}
           </select>
           <p className="text-xs text-gray-500 mt-2">
-            Default: Automatically detected from your browser ({timezoneState.browserTimezone})
+            {t.timezoneDefault} ({timezoneState.browserTimezone})
           </p>
         </div>
 
         {/* Language Preference */}
         <div>
           <label htmlFor="language" className="block text-sm font-semibold text-gray-700 mb-2">
-            Language Preference
+            {t.languagePreference}
           </label>
           <select
             id="language"
@@ -161,8 +165,8 @@ export default function UserForm({ onSubmit, isLoading = false, error }: UserFor
             className="w-full px-5 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base text-gray-900 font-medium shadow-sm hover:border-blue-400 transition-colors"
             disabled={isLoading}
           >
-            <option value="en">English</option>
-            <option value="hi">Hindi</option>
+            <option value="en">{t.english}</option>
+            <option value="hi">{t.hindi}</option>
           </select>
         </div>
 
@@ -186,7 +190,7 @@ export default function UserForm({ onSubmit, isLoading = false, error }: UserFor
           {isLoading && (
             <div className="inline-block animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
           )}
-          <span className="text-lg">{isLoading ? 'Creating Account...' : 'Start Quiz'}</span>
+          <span className="text-lg">{isLoading ? t.creatingAccountLoading : t.startQuiz}</span>
         </button>
       </form>
     </div>

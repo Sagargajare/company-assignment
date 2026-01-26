@@ -18,10 +18,14 @@ export class QuizController {
   /**
    * GET /api/quiz/schema
    * Returns the dynamic quiz structure from database
+   * Query params: language (optional, defaults to 'en')
    */
   getQuizSchema = async (req: Request, res: Response): Promise<void> => {
     try {
-      const questions = await this.quizService.getQuizSchema();
+      // Get language from query params, default to 'en'
+      const language = (req.query.language as string) || 'en';
+      
+      const questions = await this.quizService.getQuizSchema(language);
 
       const response: QuizSchemaResponse = {
         success: true,

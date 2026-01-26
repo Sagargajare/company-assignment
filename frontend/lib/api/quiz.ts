@@ -2,8 +2,12 @@ import { API_ENDPOINTS } from './config';
 import type { QuizQuestion, QuizQuestionResponse, SubmitQuizRequest, SubmitQuizResponse } from '@/types';
 
 // API Functions
-export async function fetchQuizSchema(): Promise<QuizQuestion[]> {
-  const response = await fetch(API_ENDPOINTS.QUIZ_SCHEMA, {
+export async function fetchQuizSchema(language: string = 'en'): Promise<QuizQuestion[]> {
+  // Add language parameter to the URL
+  const url = new URL(API_ENDPOINTS.QUIZ_SCHEMA);
+  url.searchParams.append('language', language);
+
+  const response = await fetch(url.toString(), {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
