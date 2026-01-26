@@ -30,6 +30,12 @@ export class QuizSchema {
   @Column({ type: 'jsonb', nullable: true })
   options?: Array<{ value: string; label: string }>; // Options for radio/checkbox questions
 
+  @Column({ type: 'jsonb', nullable: true })
+  translations?: {
+    question_text?: Record<string, string>; // {"en": "English text", "hi": "Hindi text"}
+    options?: Record<string, Array<{ value: string; label: string }>>; // {"en": [...], "hi": [...]}
+  };
+
   @Column({ type: 'int' })
   order_index!: number;
 

@@ -14,9 +14,11 @@ export class QuizService {
 
   /**
    * Get all quiz questions ordered by order_index
-   * Returns empty array if no questions exist
+   * Returns questions with translations applied for the specified language
+   * @param language Language code ('en', 'hi', etc.). Defaults to 'en'
+   * @returns Array of quiz questions in the specified language
    */
-  async getQuizSchema(): Promise<QuizSchema[]> {
+  async getQuizSchema(language: string = 'en'): Promise<QuizSchema[]> {
     try {
       const questions = await this.quizSchemaRepository.find({
         order: {
@@ -24,9 +26,30 @@ export class QuizService {
         },
       });
 
+      // Apply translations to questions
+      const translatedQuestions = questions.map((question) => {
+        // Create a copy of the question
+        const translatedQuestion = { ...question };
+
+        // If translations exist, apply them
+        if (question.translations) {
+          // Apply question text translation
+          if (question.translations.question_text && question.translations.question_text[language]) {
+            translatedQuestion.question_text = question.translations.question_text[language];
+          }
+
+          // Apply options translation
+          if (question.translations.options && question.translations.options[language]) {
+            translatedQuestion.options = question.translations.options[language];
+          }
+        }
+
+        return translatedQuestion;
+      });
+
       // Validate that questions requiring options have them
       const questionsRequiringOptions = ['radio', 'checkbox', 'select'];
-      for (const question of questions) {
+      for (const question of translatedQuestions) {
         if (questionsRequiringOptions.includes(question.question_type)) {
           if (!question.options || !Array.isArray(question.options) || question.options.length === 0) {
             throw new Error(
@@ -36,7 +59,7 @@ export class QuizService {
         }
       }
 
-      return questions;
+      return translatedQuestions;
     } catch (error) {
       throw new Error(`Failed to fetch quiz schema: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }

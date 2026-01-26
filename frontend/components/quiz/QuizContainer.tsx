@@ -4,6 +4,7 @@ import { useQuiz } from '@/hooks';
 import { QuizStep, UserForm } from './index';
 import type { UserFormData } from '@/types';
 import { createUser } from '@/lib/api';
+import { useTranslation, type Language } from '@/hooks/useTranslation';
 
 interface QuizContainerProps {
   userId?: string;
@@ -21,8 +22,10 @@ export default function QuizContainer({ userId }: QuizContainerProps) {
     isCompleted,
     riskScore,
     userId: storeUserId,
+    language: storeLanguage,
     loadSchema,
     setUserId,
+    setLanguage,
     setAnswer,
     goToNextStep,
     goToPreviousStep,
@@ -33,6 +36,7 @@ export default function QuizContainer({ userId }: QuizContainerProps) {
     resetQuiz,
   } = useQuiz();
 
+  const { t } = useTranslation((storeLanguage as Language) || 'en');
   const [showUserForm, setShowUserForm] = useState(!userId && !storeUserId);
   const [isCreatingUser, setIsCreatingUser] = useState(false);
   const [userError, setUserError] = useState<string | null>(null);
@@ -69,11 +73,12 @@ export default function QuizContainer({ userId }: QuizContainerProps) {
       }
       // If storeUserId === user.id, don't reset (same user continues)
       
-      // Set user ID
+      // Set user ID and language preference
       setUserId(user.id);
+      setLanguage(user.language_preference);
       setShowUserForm(false);
       
-      // Load schema after user is created
+      // Load schema after user is created (will use the language from store)
       await loadSchema();
     } catch (err) {
       setUserError(err instanceof Error ? err.message : 'Failed to create user');
@@ -116,8 +121,8 @@ export default function QuizContainer({ userId }: QuizContainerProps) {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mb-6"></div>
-          <p className="text-gray-700 font-semibold text-xl">Loading questions...</p>
-          <p className="text-gray-500 text-sm mt-2">Please wait</p>
+          <p className="text-gray-700 font-semibold text-xl">{t.loadingQuestions}</p>
+          <p className="text-gray-500 text-sm mt-2">{t.pleasewait}</p>
         </div>
       </div>
     );
@@ -129,7 +134,7 @@ export default function QuizContainer({ userId }: QuizContainerProps) {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center p-8 bg-white border-2 border-red-200 rounded-2xl max-w-md shadow-xl">
           <div className="text-5xl mb-4">⚠️</div>
-          <h3 className="text-2xl font-bold text-red-800 mb-3">Error Loading Quiz</h3>
+          <h3 className="text-2xl font-bold text-red-800 mb-3">{t.errorLoadingQuiz}</h3>
           <p className="text-red-600">{error}</p>
         </div>
       </div>
@@ -142,26 +147,26 @@ export default function QuizContainer({ userId }: QuizContainerProps) {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center p-10 bg-white border-2 border-green-200 rounded-2xl max-w-lg shadow-xl">
           <div className="text-7xl mb-6">🎉</div>
-          <h2 className="text-3xl font-bold text-green-800 mb-4">Quiz Completed!</h2>
+          <h2 className="text-3xl font-bold text-green-800 mb-4">{t.quizCompleted}</h2>
           {riskScore !== null && (
             <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200">
-              <p className="text-sm font-semibold text-gray-600 mb-1">Your Risk Score</p>
+              <p className="text-sm font-semibold text-gray-600 mb-1">{t.yourRiskScore}</p>
               <p className="text-4xl font-bold text-blue-600">{riskScore}</p>
             </div>
           )}
           <p className="text-gray-600 text-lg mb-6">
-            You can now proceed to book a consultation with a coach.
+            {t.proceedToBookConsultation}
           </p>
           <button
             onClick={() => {
               // Get user timezone from browser
               const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-              // Navigate to booking page with timezone parameter
-              navigate(`/booking?timezone=${encodeURIComponent(timezone)}`);
+              // Navigate to booking page with timezone and language parameters
+              navigate(`/booking?timezone=${encodeURIComponent(timezone)}&language=${storeLanguage || 'en'}`);
             }}
             className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
           >
-            Book Consultation
+            {t.bookConsultation}
           </button>
         </div>
       </div>
@@ -173,7 +178,7 @@ export default function QuizContainer({ userId }: QuizContainerProps) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center p-8 bg-white rounded-2xl shadow-xl">
-          <p className="text-gray-600 text-lg">No questions available.</p>
+          <p className="text-gray-600 text-lg">{t.noQuestionsAvailable}</p>
         </div>
       </div>
     );

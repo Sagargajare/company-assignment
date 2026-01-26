@@ -1,30 +1,17 @@
+import { memo } from 'react';
 import type { Slot } from '@/lib/store/bookingStore';
+import { useTranslation, type Language } from '@/hooks';
 
 interface SlotCardProps {
   slot: Slot;
   isSelected?: boolean;
   onSelect: (slot: Slot) => void;
   disabled?: boolean;
+  language?: Language;
 }
 
-export default function SlotCard({ slot, isSelected = false, onSelect, disabled = false }: SlotCardProps) {
-  const formatTime = (timeString: string) => {
-    const date = new Date(timeString);
-    return date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    });
-  };
-
-  const formatDate = (timeString: string) => {
-    const date = new Date(timeString);
-    return date.toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
+const SlotCard = memo(function SlotCard({ slot, isSelected = false, onSelect, disabled = false, language = 'en' }: SlotCardProps) {
+  const { t, formatTime, formatDate } = useTranslation(language);
 
   return (
     <button
@@ -45,21 +32,29 @@ export default function SlotCard({ slot, isSelected = false, onSelect, disabled 
               slot.status === 'available' ? 'bg-green-500' : 'bg-gray-400'
             }`} />
             <span className="text-sm font-semibold text-gray-600">
-              {slot.status === 'available' ? 'Available' : 'Booked'}
+              {slot.status === 'available' ? t.available : t.booked}
             </span>
           </div>
           
           <div className="mb-1">
             <p className="text-lg font-bold text-gray-900">
-              {formatTime(slot.start_time_user_tz || slot.start_time)}
+              {formatTime(slot.start_time_user_tz || slot.start_time, {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+              })}
             </p>
             <p className="text-sm text-gray-500">
-              {formatDate(slot.start_time_user_tz || slot.start_time)}
+              {formatDate(slot.start_time_user_tz || slot.start_time, {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+              })}
             </p>
           </div>
 
           <p className="text-sm font-medium text-gray-700 mt-2">
-            Coach: <span className="text-blue-600">{slot.coach_name}</span>
+            {t.coach}: <span className="text-blue-600">{slot.coach_name}</span>
           </p>
         </div>
 
@@ -75,5 +70,7 @@ export default function SlotCard({ slot, isSelected = false, onSelect, disabled 
       </div>
     </button>
   );
-}
+});
+
+export default SlotCard;
 

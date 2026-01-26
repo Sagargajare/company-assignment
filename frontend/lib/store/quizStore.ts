@@ -36,9 +36,13 @@ export interface QuizState {
   // User ID
   userId: string | null;
   
+  // Language preference
+  language: string;
+  
   // Actions
   setSchema: (schema: QuizQuestion[]) => void;
   setUserId: (userId: string) => void;
+  setLanguage: (language: string) => void;
   setCurrentStep: (step: number) => void;
   setAnswer: (questionId: string, answer: string | string[] | number) => void;
   goToNextStep: () => void;
@@ -57,6 +61,7 @@ const initialState = {
   isCompleted: false,
   riskScore: null,
   userId: null,
+  language: 'en',
 };
 
 export const useQuizStore = create<QuizState>()(
@@ -70,6 +75,10 @@ export const useQuizStore = create<QuizState>()(
 
       setUserId: (userId) => {
         set({ userId });
+      },
+
+      setLanguage: (language) => {
+        set({ language });
       },
 
       setCurrentStep: (step) => {
@@ -131,6 +140,7 @@ export const useQuizStore = create<QuizState>()(
         isStarted: state.isStarted,
         riskScore: state.riskScore,
         userId: state.userId,
+        language: state.language,
       }),
     }
   )

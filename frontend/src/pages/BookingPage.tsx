@@ -6,12 +6,12 @@ import { useQuizStore } from '@/lib/store';
 export default function BookingPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { userId, riskScore } = useQuizStore();
+  const { userId, riskScore, language: storeLanguage } = useQuizStore();
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // Get user timezone and language from URL params or store
+  // Get user timezone and language from URL params or fallback to store
   const userTimezone = searchParams.get('timezone') || undefined;
-  const language = searchParams.get('language') || undefined;
+  const language = searchParams.get('language') || storeLanguage || 'en';
 
   // Wait for store to hydrate from localStorage
   useEffect(() => {

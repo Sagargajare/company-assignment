@@ -12,11 +12,13 @@ export function useQuiz() {
     currentStep,
     answers,
     userId,
+    language,
     isStarted,
     isCompleted,
     riskScore,
     setSchema,
     setUserId,
+    setLanguage,
     setAnswer,
     goToNextStep,
     goToPreviousStep,
@@ -26,12 +28,12 @@ export function useQuiz() {
     resetQuiz,
   } = useQuizStore();
 
-  // Load quiz schema
+  // Load quiz schema with language
   const loadSchema = async () => {
     setIsLoadingSchema(true);
     setError(null);
     try {
-      const questions = await fetchQuizSchema();
+      const questions = await fetchQuizSchema(language);
       setSchema(questions);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to load quiz';
@@ -112,6 +114,7 @@ export function useQuiz() {
     // Actions
     loadSchema,
     setUserId,
+    setLanguage,
     setAnswer,
     goToNextStep,
     goToPreviousStep,
