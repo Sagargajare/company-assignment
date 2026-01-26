@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { BookingContainer } from '@/components/booking';
 import { useQuizStore } from '@/lib/store';
+import type { Language } from '@/hooks';
 
 export default function BookingPage() {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ export default function BookingPage() {
 
   // Get user timezone and language from URL params or fallback to store
   const userTimezone = searchParams.get('timezone') || undefined;
-  const language = searchParams.get('language') || storeLanguage || 'en';
+  const language = (searchParams.get('language') || storeLanguage || 'en') as Language;
 
   // Wait for store to hydrate from localStorage
   useEffect(() => {

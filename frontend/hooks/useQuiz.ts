@@ -97,6 +97,7 @@ export function useQuiz() {
     currentQuestion,
     answers,
     userId,
+    language,
     isStarted,
     isCompleted,
     riskScore,
