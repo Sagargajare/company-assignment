@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { Slot } from '@/lib/store/bookingStore';
 import { useTranslation, type Language } from '@/hooks';
 
@@ -9,7 +10,7 @@ interface SlotCardProps {
   language?: Language;
 }
 
-export default function SlotCard({ slot, isSelected = false, onSelect, disabled = false, language = 'en' }: SlotCardProps) {
+const SlotCard = memo(function SlotCard({ slot, isSelected = false, onSelect, disabled = false, language = 'en' }: SlotCardProps) {
   const { t, formatTime, formatDate } = useTranslation(language);
 
   return (
@@ -69,5 +70,7 @@ export default function SlotCard({ slot, isSelected = false, onSelect, disabled 
       </div>
     </button>
   );
-}
+});
+
+export default SlotCard;
 

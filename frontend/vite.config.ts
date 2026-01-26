@@ -23,12 +23,45 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
+    // Optimize chunk size
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          store: ['zustand'],
+        // Better code splitting strategy
+        manualChunks: (id) => {
+          // Vendor chunks
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'react-vendor';
+            }
+            if (id.includes('react-router')) {
+              return 'router';
+            }
+            if (id.includes('zustand')) {
+              return 'store';
+            }
+            return 'vendor';
+          }
+          // Split booking and quiz into separate chunks
+          if (id.includes('/components/booking/')) {
+            return 'booking';
+          }
+          if (id.includes('/components/quiz/')) {
+            return 'quiz';
+          }
         },
+        // Optimize asset naming for better caching
+        chunkFileNames: 'assets/js/[name]-[hash].js',
+        entryFileNames: 'assets/js/[name]-[hash].js',
+        assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
+      },
+    },
+    // Enable minification
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
       },
     },
   },
